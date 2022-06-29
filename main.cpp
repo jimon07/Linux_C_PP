@@ -6,10 +6,25 @@
 using namespace cv;
 using namespace std;
 
+int lowThreshold = 180;
+const int max_lowThreshold = 300;
+const int rat = 3;
+const int kernel_size = 3;
+Mat canny_img,image,image_resized;
+
 static double gettime() {
     struct timeval ttime;
     gettimeofday(&ttime, NULL);
     return ttime.tv_sec + ttime.tv_usec * 0.000001;
+}
+
+static void CannyThreshold(int,void*)
+{
+    // blur( src_gray, detected_edges, Size(3,3) );
+    Canny( image_resized, canny_img, lowThreshold, lowThreshold*rat, kernel_size );
+    // dst = Scalar::all(0);
+    // src.copyTo( dst, detected_edges);
+    imshow( "Raw Image", canny_img );
 }
 
 static void floorThreshold(Mat inputMatrix,Mat& outputMatrix, float threshold){
@@ -24,7 +39,6 @@ static void floorThreshold(Mat inputMatrix,Mat& outputMatrix, float threshold){
     not_tmp.convertTo(not_tmp,inputMatrix.type());
     multiply(inputMatrix, not_tmp, final);
     add(final,tmp,outputMatrix);
-   
 
 }
 
@@ -44,7 +58,6 @@ static void makeReconB(Mat inputMatrix1 ,Mat inputMatrix2 ,Mat& outputMatrix){
     // tmp2.convertTo(tmp2,inputMatrix2.type());
     bitwise_and(tmp,tmp2,final);
     bitwise_not(final,outputMatrix);
-
 
 }
 
@@ -89,7 +102,7 @@ int main(int argc, char** argv)
 {
     double startTime,stopTime;
     string path = "/home/jim/Desktop/Diplom_linux/IMG_2167.mp4";
-    Mat image, Purple;
+    Mat Purple,Purple_resized;
     Mat Purplebgr[3];   // Calibration destination array
     Mat bgr[3];   // Frame destination array
 
@@ -103,12 +116,13 @@ int main(int argc, char** argv)
     int dHeight = cap.get(cv::CAP_PROP_FRAME_HEIGHT);
     int fps_counter = cap.get(cv::CAP_PROP_FPS);
     cap.read(Purple);
-    split(Purple, Purplebgr);
+    resize(Purple,Purple_resized,Size(),0.5,0.5);
+    split(Purple_resized, Purplebgr);
 
     Mat zeroes = Mat::zeros(Size(Purple.cols, Purple.rows), CV_32FC1);
 
-    int width = Purple.cols;
-    int height = Purple.rows;
+    int width = Purple_resized.cols;
+    int height = Purple_resized.rows;
 
     // Mat ones = Mat::ones(Size(Purple.cols, Purple.rows), 1);
     //Mat Irn, Ibn;
@@ -133,21 +147,11 @@ int main(int argc, char** argv)
     // In.setTo(0, In == 1);
 
     
-    Mat img2;
+    // Mat img2;
     // normalize(In, dst, 0, 1, cv::NORM_MINMAX);
     // namedWindow("test", WINDOW_AUTOSIZE);
 
     // prospatheia na enosoume ksana tiw phtografies
-
-    // vector<cv::Mat> copies{Ibn, zeroes, Irn};
-    // merge(copies,img2);
-    // merge(Ibn,Irn,img2);
-    // imshow("Image", img2);
-
-    
-    // imshow("Ibn", Ibn);
-    // imshow("Irn", Irn);
-    // waitKey(0);
 
     // for (int y = 0; y < In.rows; ++y) {
     //     for (int x = 0; x < In.cols; ++x){
@@ -182,8 +186,10 @@ int main(int argc, char** argv)
             startTime = gettime();
             cap.read(image);
         }
+
+        resize(image,image_resized,Size(),0.5,0.5);
        
-        split(image, bgr);//split source
+        split(image_resized, bgr);//split source
         // bgr[1] = Mat::zeros(Size(image.cols, image.rows), CV_8UC1);
         if (!image.data)
         {
@@ -202,20 +208,31 @@ int main(int argc, char** argv)
         GaussianBlur(i12, i12, cv::Size(7, 7), 5, 5);
         GaussianBlur(i21, i21, cv::Size(7, 7), 5, 5);
  
-        floorThreshold(i12,thres12,0.7);
-        floorThreshold(i21,thres21,0.7);
+        floorThreshold(i12,thres12,0.5);
+        floorThreshold(i21,thres21,0.5);
 
         makeReconR(thres12,thres21,final12);
         makeReconB(thres12,thres21,final21);
+
+       
+
+        namedWindow("Raw Image", WINDOW_AUTOSIZE);
+
+        // Create Task Bar In progress
+        createTrackbar("Min Threshold:", "Raw Image", &lowThreshold, max_lowThreshold, CannyThreshold );
+        CannyThreshold(lowThreshold,0);
+        // Canny(image, canny_img, lowThreshold, lowThreshold*ratio, kernel_size );
+        // imshow("Raw Image", image);
+
         
-        normalize(final21, final21, 0, 1, cv::NORM_MINMAX);
+        // normalize(final21, final21, 0, 1, cv::NORM_MINMAX);
         namedWindow("Recon R", WINDOW_AUTOSIZE);
         imshow("Recon R", final12);
         namedWindow("Recon B", WINDOW_AUTOSIZE);
         imshow("Recon B", final21);
         stopTime = gettime();
         cout << (stopTime-startTime)*1000 << endl;
-        char key = waitKey(1);
+        char key = waitKey(50);
         if(key == 'p')
             playVideo = !playVideo;
     }
