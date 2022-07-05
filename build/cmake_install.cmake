@@ -1,4 +1,4 @@
-# Install script for directory: /home/jim/Desktop/Diplom_linux
+# Install script for directory: /home/jim/Desktop/Linux_C_PP
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -50,5 +50,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/jim/Desktop/Diplom_linux/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/jim/Desktop/Linux_C_PP/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

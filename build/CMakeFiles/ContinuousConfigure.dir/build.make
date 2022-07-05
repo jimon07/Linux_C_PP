@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/jim/Desktop/Diplom_linux
+CMAKE_SOURCE_DIR = /home/jim/Desktop/Linux_C_PP
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/jim/Desktop/Diplom_linux/build
+CMAKE_BINARY_DIR = /home/jim/Desktop/Linux_C_PP/build
 
 # Utility rule file for ContinuousConfigure.
 
@@ -82,6 +82,6 @@ CMakeFiles/ContinuousConfigure.dir/clean:
 .PHONY : CMakeFiles/ContinuousConfigure.dir/clean
 
 CMakeFiles/ContinuousConfigure.dir/depend:
-	cd /home/jim/Desktop/Diplom_linux/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/jim/Desktop/Diplom_linux /home/jim/Desktop/Diplom_linux /home/jim/Desktop/Diplom_linux/build /home/jim/Desktop/Diplom_linux/build /home/jim/Desktop/Diplom_linux/build/CMakeFiles/ContinuousConfigure.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/jim/Desktop/Linux_C_PP/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/jim/Desktop/Linux_C_PP /home/jim/Desktop/Linux_C_PP /home/jim/Desktop/Linux_C_PP/build /home/jim/Desktop/Linux_C_PP/build /home/jim/Desktop/Linux_C_PP/build/CMakeFiles/ContinuousConfigure.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/ContinuousConfigure.dir/depend
 

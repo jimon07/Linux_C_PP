@@ -6,11 +6,15 @@
 using namespace cv;
 using namespace std;
 
-int lowThreshold = 180;
-const int max_lowThreshold = 300;
-const int rat = 3;
+//Calibration Variables
+int lowThreshold = 50;
+int maxThreshold = 55;
+const int max_lowThreshold = 400;
+const int max_maxThreshold = 800;
+const int rat = 1;
 const int kernel_size = 3;
-Mat canny_img,image,image_resized;
+int blurKernelSize = 1;
+Mat canny_img,image,image_resized,image_blurred;
 
 static double gettime() {
     struct timeval ttime;
@@ -20,8 +24,9 @@ static double gettime() {
 
 static void CannyThreshold(int,void*)
 {
-    // blur( src_gray, detected_edges, Size(3,3) );
-    Canny( image_resized, canny_img, lowThreshold, lowThreshold*rat, kernel_size );
+    blur( image_resized, image_blurred, Size(blurKernelSize, blurKernelSize));
+    
+    Canny( image_blurred, canny_img, lowThreshold, maxThreshold, kernel_size );
     // dst = Scalar::all(0);
     // src.copyTo( dst, detected_edges);
     imshow( "Raw Image", canny_img );
@@ -101,7 +106,7 @@ static void makeReconR(Mat inputMatrix1 ,Mat inputMatrix2,Mat& outputMatrix){
 int main(int argc, char** argv)
 {
     double startTime,stopTime;
-    string path = "/home/jim/Desktop/Diplom_linux/IMG_2167.mp4";
+    string path = "/home/jim/Desktop/Linux_C_PP/IMG_2167.mp4";
     Mat Purple,Purple_resized;
     Mat Purplebgr[3];   // Calibration destination array
     Mat bgr[3];   // Frame destination array
@@ -214,18 +219,22 @@ int main(int argc, char** argv)
         makeReconR(thres12,thres21,final12);
         makeReconB(thres12,thres21,final21);
 
-       
+        // GaussianBlur(image_resized,image_blurred, cv::Size(7, 7), 5, 5);
+        // namedWindow("Blured Image", WINDOW_AUTOSIZE);
+        // imshow("Blured Image", image_blurred);
 
         namedWindow("Raw Image", WINDOW_AUTOSIZE);
+        namedWindow("TrackBars", WINDOW_AUTOSIZE);
 
         // Create Task Bar In progress
-        createTrackbar("Min Threshold:", "Raw Image", &lowThreshold, max_lowThreshold, CannyThreshold );
+        createTrackbar("Min Threshold:", "TrackBars", &lowThreshold, max_lowThreshold, CannyThreshold );
+        createTrackbar("Max Threshold:", "TrackBars", &maxThreshold, max_maxThreshold, CannyThreshold );
+        createTrackbar("Blur Kernel Size:", "TrackBars", &blurKernelSize, 9, CannyThreshold );
         CannyThreshold(lowThreshold,0);
-        // Canny(image, canny_img, lowThreshold, lowThreshold*ratio, kernel_size );
-        // imshow("Raw Image", image);
+        
 
         
-        // normalize(final21, final21, 0, 1, cv::NORM_MINMAX);
+        normalize(final21, final21, 0, 1, cv::NORM_MINMAX);
         namedWindow("Recon R", WINDOW_AUTOSIZE);
         imshow("Recon R", final12);
         namedWindow("Recon B", WINDOW_AUTOSIZE);

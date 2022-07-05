@@ -1,5 +1,5 @@
 CMakeFiles/Diplo_c++.dir/main.cpp.o: \
- /home/jim/Desktop/Diplom_linux/main.cpp /usr/include/stdc-predef.h \
+ /home/jim/Desktop/Linux_C_PP/main.cpp /usr/include/stdc-predef.h \
  /usr/include/stdio.h \
  /usr/include/x86_64-linux-gnu/bits/libc-header-start.h \
  /usr/include/features.h /usr/include/features-time64.h \
