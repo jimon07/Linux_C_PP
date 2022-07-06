@@ -7,14 +7,16 @@ using namespace cv;
 using namespace std;
 
 //Calibration Variables
-int lowThreshold = 50;
-int maxThreshold = 55;
+int lowThreshold = 110;
+int maxThreshold = 450;
 const int max_lowThreshold = 400;
 const int max_maxThreshold = 800;
-const int rat = 1;
+// const int rat = 1;
 const int kernel_size = 3;
-int blurKernelSize = 1;
-Mat canny_img,image,image_resized,image_blurred;
+int blurKernelSize = 3;
+Mat canny_img,image,image_resized,image_blurred,dilated_img;
+Mat elementKernel;
+RNG rng(12345);
 
 static double gettime() {
     struct timeval ttime;
@@ -22,14 +24,48 @@ static double gettime() {
     return ttime.tv_sec + ttime.tv_usec * 0.000001;
 }
 
+// static void getContours(img){
+
+//     vector<vector<Point>> contours;
+//     vector<Vec4i> hierarchy;
+//     findContours(thresh, contours, hierarchy, RETR_TREE, CHAIN_APPROX_NONE);
+//     // draw contours on the original image
+//     Mat image_copy = img.clone();
+//     drawContours(image_copy, contours, -1, Scalar(0, 255, 0), 2);
+//     imshow("None approximation", image_copy);
+
+// }
+
 static void CannyThreshold(int,void*)
 {
-    blur( image_resized, image_blurred, Size(blurKernelSize, blurKernelSize));
+    // blur( image_resized, image_blurred, Size(blurKernelSize, blurKernelSize));
+    GaussianBlur( image_resized, image_blurred, Size(3, 3),5,5);
     
     Canny( image_blurred, canny_img, lowThreshold, maxThreshold, kernel_size );
-    // dst = Scalar::all(0);
-    // src.copyTo( dst, detected_edges);
-    imshow( "Raw Image", canny_img );
+
+    dilate(canny_img,dilated_img,elementKernel,Point(-1,-1),1);
+   
+    imshow( "Edges Image", canny_img);
+    imshow( "Dilated Image", dilated_img);
+
+
+    vector<vector<Point> > contours;
+    vector<Vec4i> hierarchy;
+    findContours( dilated_img, contours, hierarchy, RETR_EXTERNAL , CHAIN_APPROX_NONE );
+    // Mat drawing = Mat::zeros( dilated_img.size(), CV_8UC3 );
+    Mat drawing = image_resized.clone();
+    Scalar color = Scalar(0,255,0);
+    for( size_t i = 0; i< contours.size(); i++ )
+    {
+        int area = contourArea(contours[i]);
+        if (area > 5000){
+            
+            drawContours( drawing, contours, (int)i, color, 2, LINE_8, hierarchy, 0 );
+        }
+    }
+    imshow( "Contours", drawing );
+
+    // getContours(dilated_img);
 }
 
 static void floorThreshold(Mat inputMatrix,Mat& outputMatrix, float threshold){
@@ -224,6 +260,8 @@ int main(int argc, char** argv)
         // imshow("Blured Image", image_blurred);
 
         namedWindow("Raw Image", WINDOW_AUTOSIZE);
+        namedWindow("Edges Image", WINDOW_AUTOSIZE);
+        namedWindow("Dilated Image", WINDOW_AUTOSIZE);
         namedWindow("TrackBars", WINDOW_AUTOSIZE);
 
         // Create Task Bar In progress
@@ -233,7 +271,8 @@ int main(int argc, char** argv)
         CannyThreshold(lowThreshold,0);
         
 
-        
+        imshow("Raw Image",image_resized);
+        // moveWindow("Raw Image",100,100);
         normalize(final21, final21, 0, 1, cv::NORM_MINMAX);
         namedWindow("Recon R", WINDOW_AUTOSIZE);
         imshow("Recon R", final12);
@@ -246,6 +285,6 @@ int main(int argc, char** argv)
             playVideo = !playVideo;
     }
 
-
+    destroyAllWindows();
     return 0;
 }
