@@ -7,16 +7,19 @@ using namespace cv;
 using namespace std;
 
 //Calibration Variables
-int lowThreshold = 110;
-int maxThreshold = 450;
+int lowThreshold = 65;
+int maxThreshold = 200;
+int minObjectArea = 7000;
 const int max_lowThreshold = 400;
 const int max_maxThreshold = 800;
 // const int rat = 1;
 const int kernel_size = 3;
 int blurKernelSize = 3;
-Mat canny_img,image,image_resized,image_blurred,dilated_img;
+Mat canny_img,image,image_resized,image_blurred,dilated_img,objects_only;
 Mat elementKernel;
 RNG rng(12345);
+Scalar colorGreen = Scalar(0,255,0);
+Scalar colorWhite = Scalar(255,255,255);
 
 static double gettime() {
     struct timeval ttime;
@@ -36,36 +39,46 @@ static double gettime() {
 
 // }
 
-static void CannyThreshold(int,void*)
+static void findObjects(int,void*)
 {
     // blur( image_resized, image_blurred, Size(blurKernelSize, blurKernelSize));
-    GaussianBlur( image_resized, image_blurred, Size(3, 3),5,5);
+    GaussianBlur( image_resized, image_blurred, Size(5, 5),5,5);
     
     Canny( image_blurred, canny_img, lowThreshold, maxThreshold, kernel_size );
 
     dilate(canny_img,dilated_img,elementKernel,Point(-1,-1),1);
    
     imshow( "Edges Image", canny_img);
+    
+    
     imshow( "Dilated Image", dilated_img);
 
 
     vector<vector<Point> > contours;
     vector<Vec4i> hierarchy;
     findContours( dilated_img, contours, hierarchy, RETR_EXTERNAL , CHAIN_APPROX_NONE );
-    // Mat drawing = Mat::zeros( dilated_img.size(), CV_8UC3 );
-    Mat drawing = image_resized.clone();
-    Scalar color = Scalar(0,255,0);
+    
+    Mat objects_img = image_resized.clone();
+    
     for( size_t i = 0; i< contours.size(); i++ )
     {
         int area = contourArea(contours[i]);
-        if (area > 5000){
+        if (area > minObjectArea){
             
-            drawContours( drawing, contours, (int)i, color, 2, LINE_8, hierarchy, 0 );
+            // Draw the contours with thickness -1 in order to fill the contour
+            drawContours( objects_img, contours, (int)i, colorGreen, 2, LINE_8, hierarchy, 0 );
+            drawContours( objects_only, contours, (int)i, colorWhite, -1, LINE_8, hierarchy, 0 );
         }
     }
-    imshow( "Contours", drawing );
+    imshow( "Contours", objects_img );
+    imshow( "Contours Objects", objects_only );
 
-    // getContours(dilated_img);
+    // if (objects_only.data)
+    // {
+        
+    // }
+    
+
 }
 
 static void floorThreshold(Mat inputMatrix,Mat& outputMatrix, float threshold){
@@ -187,7 +200,6 @@ int main(int argc, char** argv)
     divide(1,PurplebgrFR,irn);
     // In.setTo(0, In == 1);
 
-    
     // Mat img2;
     // normalize(In, dst, 0, 1, cv::NORM_MINMAX);
     // namedWindow("test", WINDOW_AUTOSIZE);
@@ -218,6 +230,17 @@ int main(int argc, char** argv)
 
     Mat in1,in2,bgrFB,bgrFR,i12,i21,thres12,thres21,final12,final21;
 
+    namedWindow("Raw Image", WINDOW_AUTOSIZE);
+    namedWindow("Edges Image", WINDOW_AUTOSIZE);
+    namedWindow("Dilated Image", WINDOW_AUTOSIZE);
+    namedWindow("TrackBars", WINDOW_AUTOSIZE);
+    namedWindow("Contours Objects", WINDOW_AUTOSIZE);
+
+    // Create Task Bar In progress
+    createTrackbar("Min Threshold:", "TrackBars", &lowThreshold, max_lowThreshold, findObjects );
+    createTrackbar("Max Threshold:", "TrackBars", &maxThreshold, max_maxThreshold, findObjects );
+    createTrackbar("Min Object Area:", "TrackBars", &minObjectArea, 30000, findObjects );
+
     bool playVideo = true;
 
     while (true)
@@ -227,57 +250,54 @@ int main(int argc, char** argv)
             startTime = gettime();
             cap.read(image);
         }
-
-        resize(image,image_resized,Size(),0.5,0.5);
-       
-        split(image_resized, bgr);//split source
-        // bgr[1] = Mat::zeros(Size(image.cols, image.rows), CV_8UC1);
-        if (!image.data)
+        if (!image.data) 
         {
             printf("No image data \n");
             return -1;
         }
-
-        bgr[0].convertTo(bgrFB,ibn.type());
-        bgr[2].convertTo(bgrFR,irn.type());
-        multiply(bgrFB,ibn,in1);
-        multiply(bgrFR,irn,in2);
-
-        divide(in1,in2,i12);
-        divide(in2,in1,i21);
-
-        GaussianBlur(i12, i12, cv::Size(7, 7), 5, 5);
-        GaussianBlur(i21, i21, cv::Size(7, 7), 5, 5);
- 
-        floorThreshold(i12,thres12,0.5);
-        floorThreshold(i21,thres21,0.5);
-
-        makeReconR(thres12,thres21,final12);
-        makeReconB(thres12,thres21,final21);
-
-        // GaussianBlur(image_resized,image_blurred, cv::Size(7, 7), 5, 5);
-        // namedWindow("Blured Image", WINDOW_AUTOSIZE);
-        // imshow("Blured Image", image_blurred);
-
-        namedWindow("Raw Image", WINDOW_AUTOSIZE);
-        namedWindow("Edges Image", WINDOW_AUTOSIZE);
-        namedWindow("Dilated Image", WINDOW_AUTOSIZE);
-        namedWindow("TrackBars", WINDOW_AUTOSIZE);
-
-        // Create Task Bar In progress
-        createTrackbar("Min Threshold:", "TrackBars", &lowThreshold, max_lowThreshold, CannyThreshold );
-        createTrackbar("Max Threshold:", "TrackBars", &maxThreshold, max_maxThreshold, CannyThreshold );
-        createTrackbar("Blur Kernel Size:", "TrackBars", &blurKernelSize, 9, CannyThreshold );
-        CannyThreshold(lowThreshold,0);
-        
-
+        resize(image,image_resized,Size(),0.5,0.5);
+        objects_only = Mat::zeros( image_resized.size(), CV_8UC3 );
         imshow("Raw Image",image_resized);
-        // moveWindow("Raw Image",100,100);
-        normalize(final21, final21, 0, 1, cv::NORM_MINMAX);
-        namedWindow("Recon R", WINDOW_AUTOSIZE);
-        imshow("Recon R", final12);
-        namedWindow("Recon B", WINDOW_AUTOSIZE);
-        imshow("Recon B", final21);
+        findObjects(lowThreshold,0);
+        if (objects_only.data)
+        {
+            split(objects_only, bgr);//split source
+            // bgr[1] = Mat::zeros(Size(image.cols, image.rows), CV_8UC1);
+            // if (!image_resized.data)
+            // {
+            //     printf("No image data \n");
+            //     return -1;
+            // }
+
+            bgr[0].convertTo(bgrFB,ibn.type());
+            bgr[2].convertTo(bgrFR,irn.type());
+            multiply(bgrFB,ibn,in1);
+            multiply(bgrFR,irn,in2);
+
+            divide(in1,in2,i12);
+            divide(in2,in1,i21);
+
+            GaussianBlur(i12, i12, cv::Size(7, 7), 5, 5);
+            GaussianBlur(i21, i21, cv::Size(7, 7), 5, 5);
+    
+            floorThreshold(i12,thres12,0.5);
+            floorThreshold(i21,thres21,0.5);
+
+            makeReconR(thres12,thres21,final12);
+            makeReconB(thres12,thres21,final21);
+            
+            
+
+            // moveWindow("Raw Image",100,100);
+            // normalize(final21, final21, 0, 1, cv::NORM_MINMAX);
+            // namedWindow("Recon R", WINDOW_AUTOSIZE);
+            // imshow("Recon R", final12);
+            // namedWindow("Recon B", WINDOW_AUTOSIZE);
+            // imshow("Recon B", final21);
+        }else{
+            printf("No Objects \n");
+        }
+        
         stopTime = gettime();
         cout << (stopTime-startTime)*1000 << endl;
         char key = waitKey(50);
