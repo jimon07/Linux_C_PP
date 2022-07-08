@@ -16,6 +16,7 @@ const int max_maxThreshold = 800;
 const int kernel_size = 3;
 int blurKernelSize = 3;
 Mat canny_img,image,image_resized,image_blurred,dilated_img,objects_only;
+Mat in1,in2,bgrFB,bgrFR,i12,i21,thres12,thres21,final12,final21,image_proccesing;
 Mat elementKernel;
 RNG rng(12345);
 Scalar colorGreen = Scalar(0,255,0);
@@ -27,18 +28,6 @@ static double gettime() {
     return ttime.tv_sec + ttime.tv_usec * 0.000001;
 }
 
-// static void getContours(img){
-
-//     vector<vector<Point>> contours;
-//     vector<Vec4i> hierarchy;
-//     findContours(thresh, contours, hierarchy, RETR_TREE, CHAIN_APPROX_NONE);
-//     // draw contours on the original image
-//     Mat image_copy = img.clone();
-//     drawContours(image_copy, contours, -1, Scalar(0, 255, 0), 2);
-//     imshow("None approximation", image_copy);
-
-// }
-
 static void findObjects(int,void*)
 {
     // blur( image_resized, image_blurred, Size(blurKernelSize, blurKernelSize));
@@ -48,11 +37,10 @@ static void findObjects(int,void*)
 
     dilate(canny_img,dilated_img,elementKernel,Point(-1,-1),1);
    
-    imshow( "Edges Image", canny_img);
+    // imshow( "Edges Image", canny_img);
     
     
     imshow( "Dilated Image", dilated_img);
-
 
     vector<vector<Point> > contours;
     vector<Vec4i> hierarchy;
@@ -72,12 +60,6 @@ static void findObjects(int,void*)
     }
     imshow( "Contours", objects_img );
     imshow( "Contours Objects", objects_only );
-
-    // if (objects_only.data)
-    // {
-        
-    // }
-    
 
 }
 
@@ -130,27 +112,27 @@ static void makeReconR(Mat inputMatrix1 ,Mat inputMatrix2,Mat& outputMatrix){
 
 }
 
-// static void simulateObject(){
-//     Mat tmp3 = final_not.clone();
+static void simulateObject(){
+    Mat tmp3 = i12.clone();
+    Mat mask = objects_only.clone();
+    Mat simul;
+    cvtColor(objects_only, mask, COLOR_BGR2GRAY );
+    // mask.convertTo(mask,CV_8UC1);
+    Mat outputMatrix;
+    outputMatrix.convertTo(outputMatrix,CV_8UC1);
 
-//     Mat kernelDiER = getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5));
-//     dilate(final_not, final_not, kernelDiER);
-//     erode(final_not, final_not, kernelDiER);
+    imshow("input" , mask);
+    // char key = waitKey(0);
+    distanceTransform(mask, outputMatrix, DIST_L2, DIST_MASK_PRECISE);
+    normalize(outputMatrix, outputMatrix, 0, 1, cv::NORM_MINMAX);
+    imshow("Distance Image" , outputMatrix);
+    multiply(outputMatrix,i12,simul);
+    normalize(simul, simul, 0, 1, cv::NORM_MINMAX);
+    simul.convertTo(simul,CV_8UC1,255,0);
+    applyColorMap(simul,simul,2);
+    imshow("Object" , simul);
     
-//     namedWindow("No erosion", WINDOW_AUTOSIZE);
-//     imshow("No erosion", tmp3);
-//     namedWindow("Erosion", WINDOW_AUTOSIZE);
-//     imshow("Erosion", final_not);
-
-//     // cout << final << endl;
-
-//     // imshow("Display Image", final_not);
-    
-//     // Mat dist;
-//     // final.convertTo(final,CV_8UC1);
-//     distanceTransform(final_not, outputMatrix, DIST_L2, DIST_MASK_PRECISE);
-//     // cout << outputMatrix << endl;
-// }
+}
 
 int main(int argc, char** argv)
 {
@@ -228,10 +210,10 @@ int main(int argc, char** argv)
     //     }
     // }
 
-    Mat in1,in2,bgrFB,bgrFR,i12,i21,thres12,thres21,final12,final21;
+    
 
-    namedWindow("Raw Image", WINDOW_AUTOSIZE);
-    namedWindow("Edges Image", WINDOW_AUTOSIZE);
+    // namedWindow("Raw Image", WINDOW_AUTOSIZE);
+    // namedWindow("Edges Image", WINDOW_AUTOSIZE);
     namedWindow("Dilated Image", WINDOW_AUTOSIZE);
     namedWindow("TrackBars", WINDOW_AUTOSIZE);
     namedWindow("Contours Objects", WINDOW_AUTOSIZE);
@@ -257,18 +239,14 @@ int main(int argc, char** argv)
         }
         resize(image,image_resized,Size(),0.5,0.5);
         objects_only = Mat::zeros( image_resized.size(), CV_8UC3 );
-        imshow("Raw Image",image_resized);
+        // imshow("Raw Image",image_resized);
         findObjects(lowThreshold,0);
         if (objects_only.data)
-        {
-            split(objects_only, bgr);//split source
-            // bgr[1] = Mat::zeros(Size(image.cols, image.rows), CV_8UC1);
-            // if (!image_resized.data)
-            // {
-            //     printf("No image data \n");
-            //     return -1;
-            // }
-
+        {   
+            //Proccess Only the Object pixels
+            bitwise_and(image_resized,objects_only,image_proccesing);
+            split(image_proccesing, bgr);//split source
+            
             bgr[0].convertTo(bgrFB,ibn.type());
             bgr[2].convertTo(bgrFR,irn.type());
             multiply(bgrFB,ibn,in1);
@@ -277,15 +255,24 @@ int main(int argc, char** argv)
             divide(in1,in2,i12);
             divide(in2,in1,i21);
 
-            GaussianBlur(i12, i12, cv::Size(7, 7), 5, 5);
-            GaussianBlur(i21, i21, cv::Size(7, 7), 5, 5);
-    
-            floorThreshold(i12,thres12,0.5);
-            floorThreshold(i21,thres21,0.5);
+            GaussianBlur(i12, i12, cv::Size(3, 3), 5, 5);
+            GaussianBlur(i21, i21, cv::Size(3, 3), 5, 5);
 
-            makeReconR(thres12,thres21,final12);
-            makeReconB(thres12,thres21,final21);
-            
+            imshow("I12", i12);
+            imshow("I21", i21);
+
+            // Object Simulation Algorithm
+            simulateObject();
+
+            // floorThreshold(i12,thres12,0.2);
+            // floorThreshold(i21,thres21,0.2);
+
+
+            // makeReconR(i12,i21,final12);
+            // makeReconB(i12,i21,final21);
+
+            // imshow("ReconR", i12);
+            // imshow("ReconB", i21);
             
 
             // moveWindow("Raw Image",100,100);
