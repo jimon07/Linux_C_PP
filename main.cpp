@@ -40,11 +40,34 @@ static void findObjects(int,void*)
     // imshow( "Edges Image", canny_img);
     
     
-    imshow( "Dilated Image", dilated_img);
+    // imshow( "Dilated Image", dilated_img);
 
     vector<vector<Point> > contours;
     vector<Vec4i> hierarchy;
     findContours( dilated_img, contours, hierarchy, RETR_EXTERNAL , CHAIN_APPROX_NONE );
+
+    // get the moments
+    vector<Moments> mu(contours.size());
+    for( int i = 0; i<contours.size(); i++ ){
+        int area = contourArea(contours[i]);
+        if (area > minObjectArea){
+        mu[i] = moments( contours[i], false ); 
+        }
+    }
+
+    // get the centroid of figures.
+    vector<Point2f> mc(contours.size());
+    for( int i = 0; i<contours.size(); i++){
+        
+        mc[i] = Point2f( mu[i].m10/mu[i].m00 , mu[i].m01/mu[i].m00 );
+    }
+
+    for( int i = 0; i<mc.size(); i++){
+        cout << mc[i] << endl;
+    }
+
+
+
     
     Mat objects_img = image_resized.clone();
     
@@ -56,10 +79,11 @@ static void findObjects(int,void*)
             // Draw the contours with thickness -1 in order to fill the contour
             drawContours( objects_img, contours, (int)i, colorGreen, 2, LINE_8, hierarchy, 0 );
             drawContours( objects_only, contours, (int)i, colorWhite, -1, LINE_8, hierarchy, 0 );
+            circle( objects_img, mc[i], 4, colorGreen, -1, 8, 0 );
+
         }
     }
     imshow( "Contours", objects_img );
-    imshow( "Contours Objects", objects_only );
 
 }
 
@@ -115,18 +139,18 @@ static void makeReconR(Mat inputMatrix1 ,Mat inputMatrix2,Mat& outputMatrix){
 static void simulateObject(){
     Mat tmp3 = i12.clone();
     Mat mask = objects_only.clone();
-    Mat simul;
+    Mat simul,sum;
     cvtColor(objects_only, mask, COLOR_BGR2GRAY );
     // mask.convertTo(mask,CV_8UC1);
     Mat outputMatrix;
     outputMatrix.convertTo(outputMatrix,CV_8UC1);
 
-    imshow("input" , mask);
-    // char key = waitKey(0);
     distanceTransform(mask, outputMatrix, DIST_L2, DIST_MASK_PRECISE);
     normalize(outputMatrix, outputMatrix, 0, 1, cv::NORM_MINMAX);
+    // outputMatrix.convertTo(outputMatrix,CV_8UC1,255,0);
     imshow("Distance Image" , outputMatrix);
-    multiply(outputMatrix,i12,simul);
+    add(i12,i21,sum);
+    multiply(outputMatrix,sum,simul);
     normalize(simul, simul, 0, 1, cv::NORM_MINMAX);
     simul.convertTo(simul,CV_8UC1,255,0);
     applyColorMap(simul,simul,2);
@@ -214,9 +238,9 @@ int main(int argc, char** argv)
 
     // namedWindow("Raw Image", WINDOW_AUTOSIZE);
     // namedWindow("Edges Image", WINDOW_AUTOSIZE);
-    namedWindow("Dilated Image", WINDOW_AUTOSIZE);
+    // namedWindow("Dilated Image", WINDOW_AUTOSIZE);
     namedWindow("TrackBars", WINDOW_AUTOSIZE);
-    namedWindow("Contours Objects", WINDOW_AUTOSIZE);
+    // namedWindow("Contours Objects", WINDOW_AUTOSIZE);
 
     // Create Task Bar In progress
     createTrackbar("Min Threshold:", "TrackBars", &lowThreshold, max_lowThreshold, findObjects );
@@ -260,6 +284,7 @@ int main(int argc, char** argv)
 
             imshow("I12", i12);
             imshow("I21", i21);
+
 
             // Object Simulation Algorithm
             simulateObject();
