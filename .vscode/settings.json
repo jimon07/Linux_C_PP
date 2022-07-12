@@ -10,6 +10,8 @@
         "initializer_list": "cpp",
         "utility": "cpp",
         "ostream": "cpp",
-        "random": "cpp"
+        "random": "cpp",
+        "vector": "cpp",
+        "deque": "cpp"
     }
 }

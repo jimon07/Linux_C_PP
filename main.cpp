@@ -46,42 +46,57 @@ static void findObjects(int,void*)
     vector<Vec4i> hierarchy;
     findContours( dilated_img, contours, hierarchy, RETR_EXTERNAL , CHAIN_APPROX_NONE );
 
-    // get the moments
-    vector<Moments> mu(contours.size());
-    for( int i = 0; i<contours.size(); i++ ){
-        int area = contourArea(contours[i]);
-        if (area > minObjectArea){
-        mu[i] = moments( contours[i], false ); 
+    vector<vector<Point> > GoodContours;
+    
+
+  for (size_t idx = 0; idx < contours.size(); idx++) {
+        int area = contourArea(contours[idx]);
+        if (area > minObjectArea) {
+              GoodContours.push_back(contours.at(idx));
         }
+    }
+    vector<RotatedRect> boundRect( GoodContours.size() );
+
+    // get the moments
+    vector<Moments> mu(GoodContours.size());
+    for( int i = 0; i<GoodContours.size(); i++ ){
+        mu[i] = moments( GoodContours[i], false );
     }
 
     // get the centroid of figures.
-    vector<Point2f> mc(contours.size());
-    for( int i = 0; i<contours.size(); i++){
+    vector<Point2f> mc(GoodContours.size());
+    for( int i = 0; i<GoodContours.size(); i++){
         
         mc[i] = Point2f( mu[i].m10/mu[i].m00 , mu[i].m01/mu[i].m00 );
+        boundRect[i] = minAreaRect( GoodContours[i] );
     }
 
     for( int i = 0; i<mc.size(); i++){
         cout << mc[i] << endl;
     }
 
-
-
-    
     Mat objects_img = image_resized.clone();
     
-    for( size_t i = 0; i< contours.size(); i++ )
+    for( size_t i = 0; i< GoodContours.size(); i++ )
     {
-        int area = contourArea(contours[i]);
-        if (area > minObjectArea){
+        int area = contourArea(GoodContours[i]);
+        // if (area > minObjectArea){
             
             // Draw the contours with thickness -1 in order to fill the contour
-            drawContours( objects_img, contours, (int)i, colorGreen, 2, LINE_8, hierarchy, 0 );
-            drawContours( objects_only, contours, (int)i, colorWhite, -1, LINE_8, hierarchy, 0 );
+            drawContours( objects_img, GoodContours, (int)i, colorGreen, 2, LINE_8, hierarchy, 0 );
+            drawContours( objects_only, GoodContours, (int)i, colorWhite, -1, LINE_8, hierarchy, 0 );
             circle( objects_img, mc[i], 4, colorGreen, -1, 8, 0 );
+            // rectangle( objects_img, boundRect[i].tl(), boundRect[i].br(), colorGreen, 2 );
+            // rotated rectangle
+            Point2f rect_points[4];
+            boundRect[i].points( rect_points );
+            for ( int j = 0; j < 4; j++ )
+            {
+                line( objects_img, rect_points[j], rect_points[(j+1)%4], colorGreen, 2 );
+            }
+            putText(objects_img,"Area:" + to_string(area),rect_points[2],FONT_HERSHEY_PLAIN, 1 ,colorGreen,1.6);
 
-        }
+        // }
     }
     imshow( "Contours", objects_img );
 
