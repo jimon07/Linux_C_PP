@@ -55,7 +55,6 @@ static void findObjects(int,void*)
               GoodContours.push_back(contours.at(idx));
         }
     }
-    vector<RotatedRect> boundRect( GoodContours.size() );
 
     // get the moments
     vector<Moments> mu(GoodContours.size());
@@ -65,10 +64,17 @@ static void findObjects(int,void*)
 
     // get the centroid of figures.
     vector<Point2f> mc(GoodContours.size());
+    vector<RotatedRect> boundRect( GoodContours.size() );
+    vector<Rect> boundBox( GoodContours.size() );
+    vector<vector<Point> > contours_poly( GoodContours.size() );
+
     for( int i = 0; i<GoodContours.size(); i++){
         
         mc[i] = Point2f( mu[i].m10/mu[i].m00 , mu[i].m01/mu[i].m00 );
         boundRect[i] = minAreaRect( GoodContours[i] );
+        approxPolyDP( Mat(GoodContours[i]), contours_poly[i], 3, true );
+        boundBox[i] = boundingRect( Mat(contours_poly[i]) );
+        
     }
 
     for( int i = 0; i<mc.size(); i++){
@@ -86,7 +92,7 @@ static void findObjects(int,void*)
             drawContours( objects_img, GoodContours, (int)i, colorGreen, 2, LINE_8, hierarchy, 0 );
             drawContours( objects_only, GoodContours, (int)i, colorWhite, -1, LINE_8, hierarchy, 0 );
             circle( objects_img, mc[i], 4, colorGreen, -1, 8, 0 );
-            // rectangle( objects_img, boundRect[i].tl(), boundRect[i].br(), colorGreen, 2 );
+            rectangle( objects_img, boundBox[i].tl(), boundBox[i].br(), colorGreen, 2, 8, 0 );            // rectangle( objects_img, boundRect[i].tl(), boundRect[i].br(), colorGreen, 2 );
             // rotated rectangle
             Point2f rect_points[4];
             boundRect[i].points( rect_points );
