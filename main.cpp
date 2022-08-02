@@ -101,6 +101,19 @@ static void findObjects(int,void*)
                 line( objects_img, rect_points[j], rect_points[(j+1)%4], colorGreen, 2 );
             }
             putText(objects_img,"Area:" + to_string(area),rect_points[2],FONT_HERSHEY_PLAIN, 1 ,colorGreen,1.6);
+            cv::Rect leftRoi(boundBox[i].x, boundBox[i].y, (mc[i].x-boundBox[i].x), boundBox[i].height);
+            cv::Rect rightRoi(mc[i].x, boundBox[i].y, (boundBox[i].br().x-mc[i].x), boundBox[i].height);
+            //Create the cv::Mat with the ROI you need, where "image" is the cv::Mat you want to extract the ROI from
+            cv::Mat leftPartOfObject = i12(leftRoi);
+            cv::Mat rightPartOfObject = i21(rightRoi);
+
+            //Prepei ta midenika stin eikona na ginoun asoi gia na min parembaloun sto mean
+
+            // cv::Mat test;
+            // cv::Mat subImg = img(cv::Range(0, 100), cv::Range(0, 100));
+            // cv::bitwise_and(image_roi, objects_img, test);
+            imshow("Left",leftPartOfObject);
+            imshow("Right",rightPartOfObject);
 
         // }
     }
