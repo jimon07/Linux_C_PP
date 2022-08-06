@@ -8,6 +8,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
+  "/home/jim/Desktop/Linux_C_PP/Time.cpp" "CMakeFiles/Diplo_c++.dir/Time.cpp.o" "gcc" "CMakeFiles/Diplo_c++.dir/Time.cpp.o.d"
   "/home/jim/Desktop/Linux_C_PP/main.cpp" "CMakeFiles/Diplo_c++.dir/main.cpp.o" "gcc" "CMakeFiles/Diplo_c++.dir/main.cpp.o.d"
   )
 

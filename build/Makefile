@@ -523,6 +523,30 @@ Diplo_c++/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Diplo_c++.dir/build.make CMakeFiles/Diplo_c++.dir/build
 .PHONY : Diplo_c++/fast
 
+Time.o: Time.cpp.o
+.PHONY : Time.o
+
+# target to build an object file
+Time.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Diplo_c++.dir/build.make CMakeFiles/Diplo_c++.dir/Time.cpp.o
+.PHONY : Time.cpp.o
+
+Time.i: Time.cpp.i
+.PHONY : Time.i
+
+# target to preprocess a source file
+Time.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Diplo_c++.dir/build.make CMakeFiles/Diplo_c++.dir/Time.cpp.i
+.PHONY : Time.cpp.i
+
+Time.s: Time.cpp.s
+.PHONY : Time.s
+
+# target to generate assembly for a file
+Time.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Diplo_c++.dir/build.make CMakeFiles/Diplo_c++.dir/Time.cpp.s
+.PHONY : Time.cpp.s
+
 main.o: main.cpp.o
 .PHONY : main.o
 
@@ -587,6 +611,9 @@ help:
 	@echo "... NightlyTest"
 	@echo "... NightlyUpdate"
 	@echo "... Diplo_c++"
+	@echo "... Time.o"
+	@echo "... Time.i"
+	@echo "... Time.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"

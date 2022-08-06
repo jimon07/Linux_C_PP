@@ -351,4 +351,4 @@ CMakeFiles/Diplo_c++.dir/main.cpp.o: \
  /usr/local/include/opencv4/opencv2/video.hpp \
  /usr/local/include/opencv4/opencv2/video/tracking.hpp \
  /usr/local/include/opencv4/opencv2/video/background_segm.hpp \
- /usr/include/x86_64-linux-gnu/sys/time.h
+ /home/jim/Desktop/Linux_C_PP/Time.hpp

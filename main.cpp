@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <opencv2/opencv.hpp>
-#include <sys/time.h>
 #include <limits>
+#include "Time.hpp"
 
 using namespace cv;
 using namespace std;
@@ -22,11 +22,6 @@ RNG rng(12345);
 Scalar colorGreen = Scalar(0,255,0);
 Scalar colorWhite = Scalar(255,255,255);
 
-static double gettime() {
-    struct timeval ttime;
-    gettimeofday(&ttime, NULL);
-    return ttime.tv_sec + ttime.tv_usec * 0.000001;
-}
 
 static void findObjects(int,void*)
 {
@@ -291,7 +286,7 @@ int main(int argc, char** argv)
     // namedWindow("Edges Image", WINDOW_AUTOSIZE);
     // namedWindow("Dilated Image", WINDOW_AUTOSIZE);
     namedWindow("TrackBars", WINDOW_AUTOSIZE);
-    // namedWindow("Contours Objects", WINDOW_AUTOSIZE);
+    namedWindow("Contours", WINDOW_AUTOSIZE);
 
     // Create Task Bar In progress
     createTrackbar("Min Threshold:", "TrackBars", &lowThreshold, max_lowThreshold, findObjects );
@@ -304,7 +299,7 @@ int main(int argc, char** argv)
     {
         if (playVideo)
         {
-            startTime = gettime();
+            startTime = getTime();
             cap.read(image);
         }
         if (!image.data) 
@@ -361,9 +356,9 @@ int main(int argc, char** argv)
             printf("No Objects \n");
         }
         
-        stopTime = gettime();
+        stopTime = getTime();
         int fps = 1/(stopTime-startTime);
-        putText(objects_img,"FPS:" + to_string(fps),Point(10,10),FONT_HERSHEY_PLAIN, 1 ,colorGreen,1.6);
+        putText(objects_img,"FPS:" + to_string(fps),Point(10,30),FONT_HERSHEY_PLAIN, 1 ,colorGreen,1.6);
         imshow( "Contours", objects_img );
         cout << "Frame Time :" << (stopTime-startTime)*1000 << " | FPS : " << fps << endl;
         char key = waitKey(50);
