@@ -12,6 +12,8 @@
         "ostream": "cpp",
         "random": "cpp",
         "vector": "cpp",
-        "deque": "cpp"
+        "deque": "cpp",
+        "*.ipp": "cpp",
+        "iostream": "cpp"
     }
 }
