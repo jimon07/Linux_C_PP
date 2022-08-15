@@ -12,13 +12,11 @@ int maxThreshold = 200;
 int minObjectArea = 7000;
 const int max_lowThreshold = 400;
 const int max_maxThreshold = 800;
-// const int rat = 1;
 const int kernel_size = 3;
 int blurKernelSize = 3;
 Mat canny_img,image,image_resized,image_blurred,dilated_img,objects_only,objects_img;
 Mat in1,in2,bgrFB,bgrFR,i12,i21,thres12,thres21,final12,final21,image_proccesing;
 Mat elementKernel;
-RNG rng(12345);
 Scalar colorGreen = Scalar(0,255,0);
 Scalar colorWhite = Scalar(255,255,255);
 
@@ -33,8 +31,6 @@ static void findObjects(int,void*)
     dilate(canny_img,dilated_img,elementKernel,Point(-1,-1),1);
    
     // imshow( "Edges Image", canny_img);
-    
-    
     // imshow( "Dilated Image", dilated_img);
 
     vector<vector<Point> > contours;
@@ -255,31 +251,6 @@ int main(int argc, char** argv)
     // Mat img2;
     // normalize(In, dst, 0, 1, cv::NORM_MINMAX);
     // namedWindow("test", WINDOW_AUTOSIZE);
-
-    // prospatheia na enosoume ksana tiw phtografies
-
-    // for (int y = 0; y < In.rows; ++y) {
-    //     for (int x = 0; x < In.cols; ++x){
-    //         std::cout << 1 << "/" << Purple.at<> << " == " << In.at<__uint8_t>(y, x) << "\t";
-    //     }
-    //     std::cout << std::endl;
-    // }
-    // for (int i = 0; i < height; i++)
-    // {
-    //     for (int j = 0; j < width; j++)
-    //     {
-    //         if (Purple.at<Vec3b>(i, j)[0] != 0)
-    //             Ibn.at<uchar>(i, j) = 1 / Purple.at<Vec3b>(i, j)[0];
-    //         else
-    //             Ibn.at<uchar>(i, j) = 1;
-
-    //         if (Purple.at<Vec3b>(i, j)[2] != 0)
-    //             Irn.at<uchar>(i, j) = 1 / Purple.at<Vec3b>(i, j)[2];
-    //         else
-    //             Irn.at<uchar>(i, j) = 1;
-    //     }
-    // }
-
     
 
     // namedWindow("Raw Image", WINDOW_AUTOSIZE);
