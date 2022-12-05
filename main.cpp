@@ -252,8 +252,7 @@ int main(int argc, char** argv)
     // normalize(In, dst, 0, 1, cv::NORM_MINMAX);
     // namedWindow("test", WINDOW_AUTOSIZE);
     
-    // C0de
-
+    
     // namedWindow("Raw Image", WINDOW_AUTOSIZE);
     // namedWindow("Edges Image", WINDOW_AUTOSIZE);
     // namedWindow("Dilated Image", WINDOW_AUTOSIZE);
