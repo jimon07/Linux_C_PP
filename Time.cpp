@@ -1,6 +1,4 @@
 #include "Time.hpp"
-#include <sys/time.h>
-#include <stdio.h>
 
 double getTime() {
     struct timeval ttime;

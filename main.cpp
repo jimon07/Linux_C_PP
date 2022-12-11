@@ -68,10 +68,6 @@ static void findObjects(int,void*)
         
     }
 
-    // for( int i = 0; i<mc.size(); i++){
-    //     cout << mc[i] << endl;
-    // }
-
     objects_img = image_resized.clone();
     
     for( size_t i = 0; i< GoodContours.size(); i++ )
