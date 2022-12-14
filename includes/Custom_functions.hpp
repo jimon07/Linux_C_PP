@@ -7,10 +7,12 @@
 
 // defines declarations
 using namespace cv;
+using namespace std;
 
 // function declarations
 
 double getTime();
 static void floorThreshold(Mat inputMatrix,Mat& outputMatrix, float threshold);
 void simulateObject(Mat i12, Mat i21, Mat objects_only);
+void findGoodContours(vector<vector<Point> >& contours,vector<vector<Point> >& GoodContours,int minObjectArea);
 #endif

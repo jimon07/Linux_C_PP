@@ -43,3 +43,12 @@ void simulateObject(Mat i12, Mat i21, Mat objects_only){
     applyColorMap(simul,simul,2);
     imshow("Object" , simul); 
 }
+void findGoodContours(vector<vector<Point> >& contours,vector<vector<Point> >& GoodContours,int minObjectArea){
+    
+    for (size_t idx = 0; idx < contours.size(); idx++) {
+        int area = contourArea(contours[idx]);
+        if (area > minObjectArea) {
+            GoodContours.push_back(contours.at(idx));
+        }
+    }
+}

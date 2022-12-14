@@ -5,7 +5,7 @@
 // #include "Time.hpp"
 
 // using namespace cv;
-using namespace std;
+// using namespace std;
 
 //Calibration Variables
 int lowThreshold = 65;
@@ -20,6 +20,16 @@ Mat in1,in2,bgrFB,bgrFR,i12,i21,thres12,thres21,final12,final21,image_proccesing
 Mat elementKernel;
 Scalar colorGreen = Scalar(0,255,0);
 Scalar colorWhite = Scalar(255,255,255);
+
+// void findGoodContours(vector<vector<Point> >& contours,vector<vector<Point> >& GoodContours,int minObjectArea){
+    
+//     for (size_t idx = 0; idx < contours.size(); idx++) {
+//         int area = contourArea(contours[idx]);
+//         if (area > minObjectArea) {
+//             GoodContours.push_back(contours.at(idx));
+//         }
+//     }
+// }
 
 
 static void findObjects(int,void*)
@@ -39,6 +49,8 @@ static void findObjects(int,void*)
     findContours( dilated_img, contours, hierarchy, RETR_EXTERNAL , CHAIN_APPROX_NONE );
 
     vector<vector<Point> > GoodContours;
+
+    findGoodContours(contours,GoodContours,minObjectArea);
     
     for (size_t idx = 0; idx < contours.size(); idx++) {
         int area = contourArea(contours[idx]);
@@ -106,7 +118,6 @@ static void findObjects(int,void*)
         auto meanLeft(cv::mean(leftObjectOnly));
         auto meanRight(cv::mean(rightObjectOnly));
         
-
         // cout << "Mean: " << meanLeft << ", " << meanRight << endl;
         int errorFactor = 10;
         // Add text For identification of Holes and Objects
@@ -121,7 +132,6 @@ static void findObjects(int,void*)
         // imshow("Left Final",leftObjectOnly);
         // imshow("Right Final",rightObjectOnly);
         // imshow("Right",rightPartOfObject);
-
     }
     // imshow( "Contours", objects_img );
 
