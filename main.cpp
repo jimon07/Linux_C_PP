@@ -346,6 +346,7 @@ int main(int argc, char** argv)
         putText(objects_img,"FPS:" + to_string(fps),Point(10,30),FONT_HERSHEY_PLAIN, 1 ,colorGreen,1.6);
         imshow( "Contours", objects_img );
         cout << "Frame Time :" << (stopTime-startTime)*1000 << " | FPS : " << fps << endl;
+        // Change to bigger number for delay
         char key = waitKey(50);
         if(key == 'p')
             playVideo = !playVideo;
