@@ -1,4 +1,4 @@
-#include <stdio.h>
+// #include <stdio.h>
 // #include <opencv2/opencv.hpp>
 #include "includes/Custom_functions.hpp"
 #include <limits>
@@ -40,8 +40,7 @@ static void findObjects(int,void*)
 
     vector<vector<Point> > GoodContours;
     
-
-  for (size_t idx = 0; idx < contours.size(); idx++) {
+    for (size_t idx = 0; idx < contours.size(); idx++) {
         int area = contourArea(contours[idx]);
         if (area > minObjectArea) {
               GoodContours.push_back(contours.at(idx));
@@ -90,6 +89,8 @@ static void findObjects(int,void*)
         putText(objects_img,"Area:" + to_string(area),rect_points[2],FONT_HERSHEY_PLAIN, 1 ,colorGreen,1.6);
         cv::Rect leftRoi(boundBox[i].x, boundBox[i].y, (mc[i].x-boundBox[i].x), boundBox[i].height);
         cv::Rect rightRoi(mc[i].x, boundBox[i].y, (boundBox[i].br().x-mc[i].x), boundBox[i].height);
+        
+        
         //Create the cv::Mat with the ROI you need, where "image" is the cv::Mat you want to extract the ROI from
         cv::Mat leftPartOfObject = objects_only(leftRoi);
         cv::Mat rightPartOfObject = objects_only(rightRoi);
@@ -222,16 +223,15 @@ int main(int argc, char** argv)
     Mat bgr[3];   // Frame destination array
 
     VideoCapture cap(path);
-    cameraInitiation(cap,Purple);
 
-    // cap.set(cv::CAP_PROP_FOURCC, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'));     // More fps less resolution (at least for my setup)
+    cap.set(cv::CAP_PROP_FOURCC, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'));     // More fps less resolution (at least for my setup)
     // // cap.set(cv::CAP_PROP_FRAME_WIDTH, IMAGE_W);
     // // cap.set(cv::CAP_PROP_FRAME_HEIGHT, IMAGE_H);
     // // cap.set(cv::CAP_PROP_FPS, 60);
     // int dWidth = cap.get(cv::CAP_PROP_FRAME_WIDTH); 
     // int dHeight = cap.get(cv::CAP_PROP_FRAME_HEIGHT);
     // int fps_counter = cap.get(cv::CAP_PROP_FPS);
-    // cap.read(Purple);
+    cap.read(Purple);
     resize(Purple,Purple_resized,Size(),0.5,0.5);
     split(Purple_resized, Purplebgr);
 

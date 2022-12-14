@@ -1,26 +1,11 @@
 #include "Custom_functions.hpp"
 
-
 // function definitions 
 
 double getTime() {
     struct timeval ttime;
     gettimeofday(&ttime, NULL);
     return ttime.tv_sec + ttime.tv_usec * 0.000001;
-}
-
-void cameraInitiation(VideoCapture& cam, Mat& Purple) {    
-
-    // VideoCapture cam(path);
-    cam.set(cv::CAP_PROP_FOURCC, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'));     // More fps less resolution (at least for my setup)
-    // cap.set(cv::CAP_PROP_FRAME_WIDTH, IMAGE_W);
-    // cap.set(cv::CAP_PROP_FRAME_HEIGHT, IMAGE_H);
-    // cap.set(cv::CAP_PROP_FPS, 60);
-    // int dWidth = cam.get(cv::CAP_PROP_FRAME_WIDTH); 
-    // int dHeight = cam.get(cv::CAP_PROP_FRAME_HEIGHT);
-    // int fps_counter = cam.get(cv::CAP_PROP_FPS);
-    cam.read(Purple);
-    
 }
 
 static void floorThreshold(Mat inputMatrix,Mat& outputMatrix, float threshold){
