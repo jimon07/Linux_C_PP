@@ -1,9 +1,10 @@
 #include <stdio.h>
-#include <opencv2/opencv.hpp>
+// #include <opencv2/opencv.hpp>
+#include "includes/Custom_functions.hpp"
 #include <limits>
-#include "Time.hpp"
+// #include "Time.hpp"
 
-using namespace cv;
+// using namespace cv;
 using namespace std;
 
 //Calibration Variables
@@ -125,105 +126,122 @@ static void findObjects(int,void*)
 
 }
 
-static void floorThreshold(Mat inputMatrix,Mat& outputMatrix, float threshold){
-    Mat tmp(inputMatrix.cols,inputMatrix.rows , CV_32FC1);
-    Mat not_tmp(inputMatrix.cols,inputMatrix.rows , CV_32FC1);
-    Mat final(inputMatrix.cols,inputMatrix.rows , CV_32FC1);
-    inRange(inputMatrix, 1-threshold , 1+threshold, tmp);
-    bitwise_not(tmp,not_tmp);
-    divide(tmp,255,tmp);
-    divide(not_tmp,255,not_tmp);
-    tmp.convertTo(tmp,inputMatrix.type());
-    not_tmp.convertTo(not_tmp,inputMatrix.type());
-    multiply(inputMatrix, not_tmp, final);
-    add(final,tmp,outputMatrix);
+// static void floorThreshold(Mat inputMatrix,Mat& outputMatrix, float threshold){
+//     Mat tmp(inputMatrix.cols,inputMatrix.rows , CV_32FC1);
+//     Mat not_tmp(inputMatrix.cols,inputMatrix.rows , CV_32FC1);
+//     Mat final(inputMatrix.cols,inputMatrix.rows , CV_32FC1);
+//     inRange(inputMatrix, 1-threshold , 1+threshold, tmp);
+//     bitwise_not(tmp,not_tmp);
+//     divide(tmp,255,tmp);
+//     divide(not_tmp,255,not_tmp);
+//     tmp.convertTo(tmp,inputMatrix.type());
+//     not_tmp.convertTo(not_tmp,inputMatrix.type());
+//     multiply(inputMatrix, not_tmp, final);
+//     add(final,tmp,outputMatrix);
 
-}
+// }
 
-static void makeReconB(Mat inputMatrix1 ,Mat inputMatrix2 ,Mat& outputMatrix){
-    Mat tmp(inputMatrix1.cols,inputMatrix1.rows , CV_32FC1);
-    Mat tmp2(inputMatrix2.cols,inputMatrix2.rows , CV_32FC1);
-    Mat final(inputMatrix1.cols,inputMatrix1.rows , CV_32FC1);
-    Mat final_not(inputMatrix1.cols,inputMatrix1.rows , CV_32FC1);
+// static void makeReconB(Mat inputMatrix1 ,Mat inputMatrix2 ,Mat& outputMatrix){
+//     Mat tmp(inputMatrix1.cols,inputMatrix1.rows , CV_32FC1);
+//     Mat tmp2(inputMatrix2.cols,inputMatrix2.rows , CV_32FC1);
+//     Mat final(inputMatrix1.cols,inputMatrix1.rows , CV_32FC1);
+//     Mat final_not(inputMatrix1.cols,inputMatrix1.rows , CV_32FC1);
 
-    float inf = numeric_limits<float>::infinity();
+//     float inf = numeric_limits<float>::infinity();
 
-    inRange(inputMatrix1, 0 , 0.9999999999999999999 , tmp);
-    inRange(inputMatrix2, 1.000000000000000001 , inf , tmp2);
-    // divide(tmp,255,tmp);
-    // divide(tmp2,255,tmp2);
-    // tmp.convertTo(tmp,inputMatrix1.type());
-    // tmp2.convertTo(tmp2,inputMatrix2.type());
-    bitwise_and(tmp,tmp2,final);
-    bitwise_not(final,outputMatrix);
+//     inRange(inputMatrix1, 0 , 0.9999999999999999999 , tmp);
+//     inRange(inputMatrix2, 1.000000000000000001 , inf , tmp2);
+//     // divide(tmp,255,tmp);
+//     // divide(tmp2,255,tmp2);
+//     // tmp.convertTo(tmp,inputMatrix1.type());
+//     // tmp2.convertTo(tmp2,inputMatrix2.type());
+//     bitwise_and(tmp,tmp2,final);
+//     bitwise_not(final,outputMatrix);
 
-}
+// }
 
-static void makeReconR(Mat inputMatrix1 ,Mat inputMatrix2,Mat& outputMatrix){
-    Mat tmp(inputMatrix1.cols,inputMatrix1.rows , CV_32FC1);
-    Mat tmp2(inputMatrix2.cols,inputMatrix2.rows , CV_32FC1);
-    float inf = numeric_limits<float>::infinity();
+// static void makeReconR(Mat inputMatrix1 ,Mat inputMatrix2,Mat& outputMatrix){
+//     Mat tmp(inputMatrix1.cols,inputMatrix1.rows , CV_32FC1);
+//     Mat tmp2(inputMatrix2.cols,inputMatrix2.rows , CV_32FC1);
+//     float inf = numeric_limits<float>::infinity();
 
-    inRange(inputMatrix1, 1.000000000000000001 , inf , tmp);
-    inRange(inputMatrix2, 0 , 0.9999999999999999999, tmp2);
-    divide(tmp,255,tmp);
-    divide(tmp2,255,tmp2);
-    tmp.convertTo(tmp,inputMatrix1.type());
-    tmp2.convertTo(tmp2,inputMatrix2.type());
-    bitwise_and(tmp,tmp2,outputMatrix);
+//     inRange(inputMatrix1, 1.000000000000000001 , inf , tmp);
+//     inRange(inputMatrix2, 0 , 0.9999999999999999999, tmp2);
+//     divide(tmp,255,tmp);
+//     divide(tmp2,255,tmp2);
+//     tmp.convertTo(tmp,inputMatrix1.type());
+//     tmp2.convertTo(tmp2,inputMatrix2.type());
+//     bitwise_and(tmp,tmp2,outputMatrix);
 
-}
+// }
 
-static void simulateObject(){
-    Mat tmp3 = i12.clone();
-    Mat mask = objects_only.clone();
-    Mat simul,sum;
-    cvtColor(objects_only, mask, COLOR_BGR2GRAY );
-    // mask.convertTo(mask,CV_8UC1);
-    Mat outputMatrix;
-    outputMatrix.convertTo(outputMatrix,CV_8UC1);
+// static void simulateObject(){
+//     Mat tmp3 = i12.clone();
+//     Mat mask = objects_only.clone();
+//     Mat simul,sum;
+//     cvtColor(objects_only, mask, COLOR_BGR2GRAY );
+//     // mask.convertTo(mask,CV_8UC1);
+//     Mat outputMatrix;
+//     outputMatrix.convertTo(outputMatrix,CV_8UC1);
 
-    distanceTransform(mask, outputMatrix, DIST_L2, DIST_MASK_PRECISE);
-    normalize(outputMatrix, outputMatrix, 0, 1, cv::NORM_MINMAX);
-    // outputMatrix.convertTo(outputMatrix,CV_8UC1,255,0);
-    // imshow("Distance Image" , outputMatrix);
-    add(i12,i21,sum);
-    multiply(outputMatrix,sum,simul);
-    normalize(simul, simul, 0, 1, cv::NORM_MINMAX);
-    simul.convertTo(simul,CV_8UC1,255,0);
-    applyColorMap(simul,simul,2);
-    imshow("Object" , simul);
+//     distanceTransform(mask, outputMatrix, DIST_L2, DIST_MASK_PRECISE);
+//     normalize(outputMatrix, outputMatrix, 0, 1, cv::NORM_MINMAX);
+//     // outputMatrix.convertTo(outputMatrix,CV_8UC1,255,0);
+//     // imshow("Distance Image" , outputMatrix);
+//     add(i12,i21,sum);
+//     multiply(outputMatrix,sum,simul);
+//     normalize(simul, simul, 0, 1, cv::NORM_MINMAX);
+//     simul.convertTo(simul,CV_8UC1,255,0);
+//     applyColorMap(simul,simul,2);
+//     imshow("Object" , simul);
     
-}
+// }
+
+// static void cameraInitiation(VideoCapture& cam, Mat& Purple) {
+    
+
+//     // VideoCapture cam(path);
+//     cam.set(cv::CAP_PROP_FOURCC, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'));     // More fps less resolution (at least for my setup)
+//     // cap.set(cv::CAP_PROP_FRAME_WIDTH, IMAGE_W);
+//     // cap.set(cv::CAP_PROP_FRAME_HEIGHT, IMAGE_H);
+//     // cap.set(cv::CAP_PROP_FPS, 60);
+//     // int dWidth = cam.get(cv::CAP_PROP_FRAME_WIDTH); 
+//     // int dHeight = cam.get(cv::CAP_PROP_FRAME_HEIGHT);
+//     // int fps_counter = cam.get(cv::CAP_PROP_FPS);
+//     cam.read(Purple);
+    
+// }
 
 int main(int argc, char** argv)
 {
+    
     double startTime,stopTime;
     string path = "/home/jim/Desktop/Linux_C_PP/IMG_2167.mp4";
     Mat Purple,Purple_resized;
     Mat Purplebgr[3];   // Calibration destination array
     Mat bgr[3];   // Frame destination array
 
-
     VideoCapture cap(path);
-    cap.set(cv::CAP_PROP_FOURCC, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'));      // More fps less resolution (at least for my setup)
-    // cap.set(cv::CAP_PROP_FRAME_WIDTH, IMAGE_W);
-    // cap.set(cv::CAP_PROP_FRAME_HEIGHT, IMAGE_H);
-    // cap.set(cv::CAP_PROP_FPS, 60);
-    int dWidth = cap.get(cv::CAP_PROP_FRAME_WIDTH); 
-    int dHeight = cap.get(cv::CAP_PROP_FRAME_HEIGHT);
-    int fps_counter = cap.get(cv::CAP_PROP_FPS);
-    cap.read(Purple);
+    cameraInitiation(cap,Purple);
+
+    // cap.set(cv::CAP_PROP_FOURCC, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'));     // More fps less resolution (at least for my setup)
+    // // cap.set(cv::CAP_PROP_FRAME_WIDTH, IMAGE_W);
+    // // cap.set(cv::CAP_PROP_FRAME_HEIGHT, IMAGE_H);
+    // // cap.set(cv::CAP_PROP_FPS, 60);
+    // int dWidth = cap.get(cv::CAP_PROP_FRAME_WIDTH); 
+    // int dHeight = cap.get(cv::CAP_PROP_FRAME_HEIGHT);
+    // int fps_counter = cap.get(cv::CAP_PROP_FPS);
+    // cap.read(Purple);
     resize(Purple,Purple_resized,Size(),0.5,0.5);
     split(Purple_resized, Purplebgr);
 
-    Mat zeroes = Mat::zeros(Size(Purple.cols, Purple.rows), CV_32FC1);
+    // Mat zeroes = Mat::zeros(Size(Purple.cols, Purple.rows), CV_32FC1);
 
     int width = Purple_resized.cols;
     int height = Purple_resized.rows;
 
     // Mat ones = Mat::ones(Size(Purple.cols, Purple.rows), 1);
-    //Mat Irn, Ibn;
+    // Mat Irn, Ibn;
     // Mat Ibn = Mat(height, width, CV_8UC1);
     // Mat Irn = Mat(height, width, CV_8UC1);
     //Mat proc = Mat(height, width, CV_8UC1);
@@ -300,7 +318,7 @@ int main(int argc, char** argv)
 
 
             // Object Simulation Algorithm
-            simulateObject();
+            simulateObject(i12,i21,objects_only);
 
             // floorThreshold(i12,thres12,0.2);
             // floorThreshold(i21,thres21,0.2);

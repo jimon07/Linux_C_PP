@@ -11,7 +11,7 @@ include_directories( ${OpenCV_INCLUDE_DIRS} )
 
 set(FilesToInclude 
 main.cpp
-Time.cpp
+includes/Custom_functions.cpp
 )
 add_executable(${PROJECT_NAME} ${FilesToInclude})
 target_link_libraries( ${PROJECT_NAME} ${OpenCV_LIBS} )

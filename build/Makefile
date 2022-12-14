@@ -523,29 +523,29 @@ Diplo_c++/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Diplo_c++.dir/build.make CMakeFiles/Diplo_c++.dir/build
 .PHONY : Diplo_c++/fast
 
-Time.o: Time.cpp.o
-.PHONY : Time.o
+includes/Custom_functions.o: includes/Custom_functions.cpp.o
+.PHONY : includes/Custom_functions.o
 
 # target to build an object file
-Time.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Diplo_c++.dir/build.make CMakeFiles/Diplo_c++.dir/Time.cpp.o
-.PHONY : Time.cpp.o
+includes/Custom_functions.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Diplo_c++.dir/build.make CMakeFiles/Diplo_c++.dir/includes/Custom_functions.cpp.o
+.PHONY : includes/Custom_functions.cpp.o
 
-Time.i: Time.cpp.i
-.PHONY : Time.i
+includes/Custom_functions.i: includes/Custom_functions.cpp.i
+.PHONY : includes/Custom_functions.i
 
 # target to preprocess a source file
-Time.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Diplo_c++.dir/build.make CMakeFiles/Diplo_c++.dir/Time.cpp.i
-.PHONY : Time.cpp.i
+includes/Custom_functions.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Diplo_c++.dir/build.make CMakeFiles/Diplo_c++.dir/includes/Custom_functions.cpp.i
+.PHONY : includes/Custom_functions.cpp.i
 
-Time.s: Time.cpp.s
-.PHONY : Time.s
+includes/Custom_functions.s: includes/Custom_functions.cpp.s
+.PHONY : includes/Custom_functions.s
 
 # target to generate assembly for a file
-Time.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Diplo_c++.dir/build.make CMakeFiles/Diplo_c++.dir/Time.cpp.s
-.PHONY : Time.cpp.s
+includes/Custom_functions.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Diplo_c++.dir/build.make CMakeFiles/Diplo_c++.dir/includes/Custom_functions.cpp.s
+.PHONY : includes/Custom_functions.cpp.s
 
 main.o: main.cpp.o
 .PHONY : main.o
@@ -611,9 +611,9 @@ help:
 	@echo "... NightlyTest"
 	@echo "... NightlyUpdate"
 	@echo "... Diplo_c++"
-	@echo "... Time.o"
-	@echo "... Time.i"
-	@echo "... Time.s"
+	@echo "... includes/Custom_functions.o"
+	@echo "... includes/Custom_functions.i"
+	@echo "... includes/Custom_functions.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"

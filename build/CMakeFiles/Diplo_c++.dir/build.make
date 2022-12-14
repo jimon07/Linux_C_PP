@@ -83,30 +83,30 @@ CMakeFiles/Diplo_c++.dir/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Diplo_c++.dir/main.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/jim/Desktop/Linux_C_PP/main.cpp -o CMakeFiles/Diplo_c++.dir/main.cpp.s
 
-CMakeFiles/Diplo_c++.dir/Time.cpp.o: CMakeFiles/Diplo_c++.dir/flags.make
-CMakeFiles/Diplo_c++.dir/Time.cpp.o: ../Time.cpp
-CMakeFiles/Diplo_c++.dir/Time.cpp.o: CMakeFiles/Diplo_c++.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/jim/Desktop/Linux_C_PP/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/Diplo_c++.dir/Time.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Diplo_c++.dir/Time.cpp.o -MF CMakeFiles/Diplo_c++.dir/Time.cpp.o.d -o CMakeFiles/Diplo_c++.dir/Time.cpp.o -c /home/jim/Desktop/Linux_C_PP/Time.cpp
+CMakeFiles/Diplo_c++.dir/includes/Custom_functions.cpp.o: CMakeFiles/Diplo_c++.dir/flags.make
+CMakeFiles/Diplo_c++.dir/includes/Custom_functions.cpp.o: ../includes/Custom_functions.cpp
+CMakeFiles/Diplo_c++.dir/includes/Custom_functions.cpp.o: CMakeFiles/Diplo_c++.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/jim/Desktop/Linux_C_PP/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/Diplo_c++.dir/includes/Custom_functions.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Diplo_c++.dir/includes/Custom_functions.cpp.o -MF CMakeFiles/Diplo_c++.dir/includes/Custom_functions.cpp.o.d -o CMakeFiles/Diplo_c++.dir/includes/Custom_functions.cpp.o -c /home/jim/Desktop/Linux_C_PP/includes/Custom_functions.cpp
 
-CMakeFiles/Diplo_c++.dir/Time.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Diplo_c++.dir/Time.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/jim/Desktop/Linux_C_PP/Time.cpp > CMakeFiles/Diplo_c++.dir/Time.cpp.i
+CMakeFiles/Diplo_c++.dir/includes/Custom_functions.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Diplo_c++.dir/includes/Custom_functions.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/jim/Desktop/Linux_C_PP/includes/Custom_functions.cpp > CMakeFiles/Diplo_c++.dir/includes/Custom_functions.cpp.i
 
-CMakeFiles/Diplo_c++.dir/Time.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Diplo_c++.dir/Time.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/jim/Desktop/Linux_C_PP/Time.cpp -o CMakeFiles/Diplo_c++.dir/Time.cpp.s
+CMakeFiles/Diplo_c++.dir/includes/Custom_functions.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Diplo_c++.dir/includes/Custom_functions.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/jim/Desktop/Linux_C_PP/includes/Custom_functions.cpp -o CMakeFiles/Diplo_c++.dir/includes/Custom_functions.cpp.s
 
 # Object files for target Diplo_c++
 Diplo_c_______OBJECTS = \
 "CMakeFiles/Diplo_c++.dir/main.cpp.o" \
-"CMakeFiles/Diplo_c++.dir/Time.cpp.o"
+"CMakeFiles/Diplo_c++.dir/includes/Custom_functions.cpp.o"
 
 # External object files for target Diplo_c++
 Diplo_c_______EXTERNAL_OBJECTS =
 
 Diplo_c++: CMakeFiles/Diplo_c++.dir/main.cpp.o
-Diplo_c++: CMakeFiles/Diplo_c++.dir/Time.cpp.o
+Diplo_c++: CMakeFiles/Diplo_c++.dir/includes/Custom_functions.cpp.o
 Diplo_c++: CMakeFiles/Diplo_c++.dir/build.make
 Diplo_c++: /usr/local/lib/libopencv_gapi.so.4.6.0
 Diplo_c++: /usr/local/lib/libopencv_highgui.so.4.6.0
