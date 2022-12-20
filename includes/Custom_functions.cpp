@@ -24,7 +24,7 @@ static void floorThreshold(Mat inputMatrix,Mat& outputMatrix, float threshold){
 }
 
 void simulateObject(Mat i12, Mat i21, Mat objects_only){
-    Mat tmp3 = i12.clone();
+    // Mat tmp3 = i12.clone();
     Mat mask = objects_only.clone();
     Mat simul,sum;
     cvtColor(objects_only, mask, COLOR_BGR2GRAY );
@@ -40,6 +40,7 @@ void simulateObject(Mat i12, Mat i21, Mat objects_only){
     multiply(outputMatrix,sum,simul);
     normalize(simul, simul, 0, 1, cv::NORM_MINMAX);
     simul.convertTo(simul,CV_8UC1,255,0);
+    imshow("Object no color" , simul);
     applyColorMap(simul,simul,2);
     imshow("Object" , simul); 
 }

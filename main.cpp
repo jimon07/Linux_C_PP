@@ -323,8 +323,8 @@ int main(int argc, char** argv)
             GaussianBlur(i12, i12, cv::Size(3, 3), 5, 5);
             GaussianBlur(i21, i21, cv::Size(3, 3), 5, 5);
 
-            // imshow("I12", i12);
-            // imshow("I21", i21);
+            imshow("I12", i12);
+            imshow("I21", i21);
 
 
             // Object Simulation Algorithm
