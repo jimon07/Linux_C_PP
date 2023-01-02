@@ -27,6 +27,7 @@
 /home/jim/Desktop/Linux_C_PP/build/CMakeFiles/ContinuousMemCheck.dir
 /home/jim/Desktop/Linux_C_PP/build/CMakeFiles/ContinuousSubmit.dir
 /home/jim/Desktop/Linux_C_PP/build/CMakeFiles/Diplo_c++.dir
+/home/jim/Desktop/Linux_C_PP/build/CMakeFiles/testCustom.dir
 /home/jim/Desktop/Linux_C_PP/build/CMakeFiles/package.dir
 /home/jim/Desktop/Linux_C_PP/build/CMakeFiles/package_source.dir
 /home/jim/Desktop/Linux_C_PP/build/CMakeFiles/test.dir

@@ -328,7 +328,8 @@ int main(int argc, char** argv)
 
 
             // Object Simulation Algorithm
-            simulateObject(i12,i21,objects_only);
+            // simulateObject(i12,i21,objects_only);
+            simulateObjectv2(i12);
 
             // floorThreshold(i12,thres12,0.2);
             // floorThreshold(i21,thres21,0.2);
@@ -357,7 +358,7 @@ int main(int argc, char** argv)
         imshow( "Contours", objects_img );
         cout << "Frame Time :" << (stopTime-startTime)*1000 << " | FPS : " << fps << endl;
         // Change to bigger number for delay
-        char key = waitKey(50);
+        char key = waitKey(1);
         if(key == 'p')
             playVideo = !playVideo;
     }

@@ -523,12 +523,26 @@ Diplo_c++/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Diplo_c++.dir/build.make CMakeFiles/Diplo_c++.dir/build
 .PHONY : Diplo_c++/fast
 
+#=============================================================================
+# Target rules for targets named testCustom
+
+# Build rule for target.
+testCustom: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 testCustom
+.PHONY : testCustom
+
+# fast build rule for target.
+testCustom/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/testCustom.dir/build.make CMakeFiles/testCustom.dir/build
+.PHONY : testCustom/fast
+
 includes/Custom_functions.o: includes/Custom_functions.cpp.o
 .PHONY : includes/Custom_functions.o
 
 # target to build an object file
 includes/Custom_functions.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Diplo_c++.dir/build.make CMakeFiles/Diplo_c++.dir/includes/Custom_functions.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/testCustom.dir/build.make CMakeFiles/testCustom.dir/includes/Custom_functions.cpp.o
 .PHONY : includes/Custom_functions.cpp.o
 
 includes/Custom_functions.i: includes/Custom_functions.cpp.i
@@ -537,6 +551,7 @@ includes/Custom_functions.i: includes/Custom_functions.cpp.i
 # target to preprocess a source file
 includes/Custom_functions.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Diplo_c++.dir/build.make CMakeFiles/Diplo_c++.dir/includes/Custom_functions.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/testCustom.dir/build.make CMakeFiles/testCustom.dir/includes/Custom_functions.cpp.i
 .PHONY : includes/Custom_functions.cpp.i
 
 includes/Custom_functions.s: includes/Custom_functions.cpp.s
@@ -545,6 +560,7 @@ includes/Custom_functions.s: includes/Custom_functions.cpp.s
 # target to generate assembly for a file
 includes/Custom_functions.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Diplo_c++.dir/build.make CMakeFiles/Diplo_c++.dir/includes/Custom_functions.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/testCustom.dir/build.make CMakeFiles/testCustom.dir/includes/Custom_functions.cpp.s
 .PHONY : includes/Custom_functions.cpp.s
 
 main.o: main.cpp.o
@@ -570,6 +586,30 @@ main.s: main.cpp.s
 main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Diplo_c++.dir/build.make CMakeFiles/Diplo_c++.dir/main.cpp.s
 .PHONY : main.cpp.s
+
+test/testCustom.o: test/testCustom.cpp.o
+.PHONY : test/testCustom.o
+
+# target to build an object file
+test/testCustom.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/testCustom.dir/build.make CMakeFiles/testCustom.dir/test/testCustom.cpp.o
+.PHONY : test/testCustom.cpp.o
+
+test/testCustom.i: test/testCustom.cpp.i
+.PHONY : test/testCustom.i
+
+# target to preprocess a source file
+test/testCustom.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/testCustom.dir/build.make CMakeFiles/testCustom.dir/test/testCustom.cpp.i
+.PHONY : test/testCustom.cpp.i
+
+test/testCustom.s: test/testCustom.cpp.s
+.PHONY : test/testCustom.s
+
+# target to generate assembly for a file
+test/testCustom.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/testCustom.dir/build.make CMakeFiles/testCustom.dir/test/testCustom.cpp.s
+.PHONY : test/testCustom.cpp.s
 
 # Help Target
 help:
@@ -611,12 +651,16 @@ help:
 	@echo "... NightlyTest"
 	@echo "... NightlyUpdate"
 	@echo "... Diplo_c++"
+	@echo "... testCustom"
 	@echo "... includes/Custom_functions.o"
 	@echo "... includes/Custom_functions.i"
 	@echo "... includes/Custom_functions.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
+	@echo "... test/testCustom.o"
+	@echo "... test/testCustom.i"
+	@echo "... test/testCustom.s"
 .PHONY : help
 
 

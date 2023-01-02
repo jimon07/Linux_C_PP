@@ -64,6 +64,7 @@ CMAKE_BINARY_DIR = /home/jim/Desktop/Linux_C_PP/build
 
 # The main recursive "all" target.
 all: CMakeFiles/Diplo_c++.dir/all
+all: CMakeFiles/testCustom.dir/all
 .PHONY : all
 
 # The main recursive "preinstall" target.
@@ -100,6 +101,7 @@ clean: CMakeFiles/ContinuousCoverage.dir/clean
 clean: CMakeFiles/ContinuousMemCheck.dir/clean
 clean: CMakeFiles/ContinuousSubmit.dir/clean
 clean: CMakeFiles/Diplo_c++.dir/clean
+clean: CMakeFiles/testCustom.dir/clean
 .PHONY : clean
 
 #=============================================================================
@@ -855,6 +857,32 @@ Diplo_c++: CMakeFiles/Diplo_c++.dir/rule
 CMakeFiles/Diplo_c++.dir/clean:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Diplo_c++.dir/build.make CMakeFiles/Diplo_c++.dir/clean
 .PHONY : CMakeFiles/Diplo_c++.dir/clean
+
+#=============================================================================
+# Target rules for target CMakeFiles/testCustom.dir
+
+# All Build rule for target.
+CMakeFiles/testCustom.dir/all:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/testCustom.dir/build.make CMakeFiles/testCustom.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/testCustom.dir/build.make CMakeFiles/testCustom.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/jim/Desktop/Linux_C_PP/build/CMakeFiles --progress-num=4,5,6 "Built target testCustom"
+.PHONY : CMakeFiles/testCustom.dir/all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/testCustom.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/jim/Desktop/Linux_C_PP/build/CMakeFiles 3
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/testCustom.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/jim/Desktop/Linux_C_PP/build/CMakeFiles 0
+.PHONY : CMakeFiles/testCustom.dir/rule
+
+# Convenience name for target.
+testCustom: CMakeFiles/testCustom.dir/rule
+.PHONY : testCustom
+
+# clean rule for target.
+CMakeFiles/testCustom.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/testCustom.dir/build.make CMakeFiles/testCustom.dir/clean
+.PHONY : CMakeFiles/testCustom.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.

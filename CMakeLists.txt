@@ -8,6 +8,7 @@ set(CMAKE_BUILD_TYPE Debug)
 
 find_package( OpenCV REQUIRED )
 include_directories( ${OpenCV_INCLUDE_DIRS} )
+include_directories( includes )
 
 set(FilesToInclude 
 main.cpp
@@ -19,3 +20,6 @@ target_link_libraries( ${PROJECT_NAME} ${OpenCV_LIBS} )
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)
+
+add_executable(testCustom  test/testCustom.cpp includes/Custom_functions.cpp )
+target_link_libraries( testCustom ${OpenCV_LIBS} )

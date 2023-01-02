@@ -44,6 +44,30 @@ void simulateObject(Mat i12, Mat i21, Mat objects_only){
     applyColorMap(simul,simul,2);
     imshow("Object" , simul); 
 }
+
+void simulateObjectv2(Mat i12){
+    
+    // cv::integral(i12,integral,CV_32F);
+
+    Mat line,final;
+    for (int i = 0; i < i12.rows; i++)
+    {
+        Mat integral;
+        line = i12.row(i);
+        // i12.row(i).copyTo(line);
+        cv::integral(line,integral,CV_32F);
+        final.push_back(integral.row(1));
+        // Or, for a deep copy:
+        // line = i12.row(i).clone();
+        imshow("Test", i12);
+        imshow("line", line);
+        imshow("Integral",integral);
+        imshow("Final",final);
+        // waitKey(0);
+    }
+        waitKey(0);
+
+}
 void findGoodContours(vector<vector<Point> >& contours,vector<vector<Point> >& GoodContours,int minObjectArea){
     
     for (size_t idx = 0; idx < contours.size(); idx++) {
