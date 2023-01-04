@@ -231,6 +231,7 @@ int main(int argc, char** argv)
     Mat Purple,Purple_resized;
     Mat Purplebgr[3];   // Calibration destination array
     Mat bgr[3];   // Frame destination array
+    float resizeParam = 0.05;
 
     VideoCapture cap(path);
 
@@ -242,7 +243,7 @@ int main(int argc, char** argv)
     // int dHeight = cap.get(cv::CAP_PROP_FRAME_HEIGHT);
     // int fps_counter = cap.get(cv::CAP_PROP_FPS);
     cap.read(Purple);
-    resize(Purple,Purple_resized,Size(),0.5,0.5);
+    resize(Purple,Purple_resized,Size(),resizeParam,resizeParam);
     split(Purple_resized, Purplebgr);
 
     // Mat zeroes = Mat::zeros(Size(Purple.cols, Purple.rows), CV_32FC1);
@@ -302,7 +303,7 @@ int main(int argc, char** argv)
             printf("No image data \n");
             return -1;
         }
-        resize(image,image_resized,Size(),0.5,0.5);
+        resize(image,image_resized,Size(),resizeParam,resizeParam);
         objects_only = Mat::zeros( image_resized.size(), CV_8UC3 );
         // imshow("Raw Image",image_resized);
         findObjects(lowThreshold,0);
@@ -316,9 +317,17 @@ int main(int argc, char** argv)
             bgr[2].convertTo(bgrFR,irn.type());
             multiply(bgrFB,ibn,in1);
             multiply(bgrFR,irn,in2);
+            
+            // cout << "in1 = " << endl << " "  << in1 << endl << endl;
+            // cout << "in2 = " << endl << " "  << in2 << endl << endl;
+
 
             divide(in1,in2,i12);
             divide(in2,in1,i21);
+
+            patchNaNs(i12,0);
+            patchNaNs(i21,0);
+
 
             GaussianBlur(i12, i12, cv::Size(3, 3), 5, 5);
             GaussianBlur(i21, i21, cv::Size(3, 3), 5, 5);
@@ -329,6 +338,7 @@ int main(int argc, char** argv)
 
             // Object Simulation Algorithm
             // simulateObject(i12,i21,objects_only);
+            cout << "I12 = " << endl << " "  << i12 << endl << endl;
             simulateObjectv2(i12);
 
             // floorThreshold(i12,thres12,0.2);
@@ -358,7 +368,7 @@ int main(int argc, char** argv)
         imshow( "Contours", objects_img );
         cout << "Frame Time :" << (stopTime-startTime)*1000 << " | FPS : " << fps << endl;
         // Change to bigger number for delay
-        char key = waitKey(1);
+        char key = waitKey(0);
         if(key == 'p')
             playVideo = !playVideo;
     }

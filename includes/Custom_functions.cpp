@@ -47,9 +47,13 @@ void simulateObject(Mat i12, Mat i21, Mat objects_only){
 
 void simulateObjectv2(Mat i12){
     
-    // cv::integral(i12,integral,CV_32F);
 
     Mat line,final;
+    float eThreshold = 0.2;
+    i12.setTo(1,i12 > 1+eThreshold);
+    i12.setTo(-1,i12 < 1-eThreshold);
+    // i12.setTo(0,(i12 > (1-eThreshold) || i12 < (1+eThreshold)));
+    
     for (int i = 0; i < i12.rows; i++)
     {
         Mat integral;
@@ -64,8 +68,11 @@ void simulateObjectv2(Mat i12){
         imshow("Integral",integral);
         imshow("Final",final);
         // waitKey(0);
-    }
-        waitKey(0);
+    }   
+        cout << "I12 inside = " << endl << " "  << i12 << endl << endl;
+        
+        cout << "Final = " << endl << " "  << final << endl << endl;
+        // waitKey(1);
 
 }
 void findGoodContours(vector<vector<Point> >& contours,vector<vector<Point> >& GoodContours,int minObjectArea){
