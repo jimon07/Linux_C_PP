@@ -48,11 +48,12 @@ void simulateObject(Mat i12, Mat i21, Mat objects_only){
 void simulateObjectv2(Mat i12){
     
 
-    Mat line,final;
+    Mat line,final,tmp;
     float eThreshold = 0.2;
+    inRange(i12,1-eThreshold,1+eThreshold,tmp);
     i12.setTo(1,i12 > 1+eThreshold);
     i12.setTo(-1,i12 < 1-eThreshold);
-    // i12.setTo(0,(i12 > (1-eThreshold) || i12 < (1+eThreshold)));
+    i12.setTo(0,tmp);
     
     for (int i = 0; i < i12.rows; i++)
     {

@@ -231,7 +231,7 @@ int main(int argc, char** argv)
     Mat Purple,Purple_resized;
     Mat Purplebgr[3];   // Calibration destination array
     Mat bgr[3];   // Frame destination array
-    float resizeParam = 0.05;
+    float resizeParam = 0.1;
 
     VideoCapture cap(path);
 
@@ -318,15 +318,15 @@ int main(int argc, char** argv)
             multiply(bgrFB,ibn,in1);
             multiply(bgrFR,irn,in2);
             
-            // cout << "in1 = " << endl << " "  << in1 << endl << endl;
-            // cout << "in2 = " << endl << " "  << in2 << endl << endl;
+            cout << "in1 = " << endl << " "  << in1 << endl << endl;
+            cout << "in2 = " << endl << " "  << in2 << endl << endl;
 
 
             divide(in1,in2,i12);
             divide(in2,in1,i21);
 
-            patchNaNs(i12,0);
-            patchNaNs(i21,0);
+            patchNaNs(i12,1);
+            patchNaNs(i21,1);
 
 
             GaussianBlur(i12, i12, cv::Size(3, 3), 5, 5);
