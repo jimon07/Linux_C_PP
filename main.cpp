@@ -16,7 +16,7 @@ const int max_maxThreshold = 800;
 const int kernel_size = 3;
 int blurKernelSize = 3;
 Mat canny_img,image,image_resized,image_blurred,dilated_img,objects_only,objects_img;
-Mat in1,in2,bgrFB,bgrFR,i12,i21,thres12,thres21,final12,final21,image_proccesing;
+Mat blueNormalized,redNormalized,bgrFB,bgrFR,blueToRed,redToBlue,thres12,thres21,final12,final21,image_proccesing;
 Mat elementKernel;
 Scalar colorGreen = Scalar(0,255,0);
 Scalar colorWhite = Scalar(255,255,255);
@@ -187,7 +187,7 @@ static void findObjects(int,void*)
 // }
 
 // static void simulateObject(){
-//     Mat tmp3 = i12.clone();
+//     Mat tmp3 = blueToRed.clone();
 //     Mat mask = objects_only.clone();
 //     Mat simul,sum;
 //     cvtColor(objects_only, mask, COLOR_BGR2GRAY );
@@ -199,7 +199,7 @@ static void findObjects(int,void*)
 //     normalize(outputMatrix, outputMatrix, 0, 1, cv::NORM_MINMAX);
 //     // outputMatrix.convertTo(outputMatrix,CV_8UC1,255,0);
 //     // imshow("Distance Image" , outputMatrix);
-//     add(i12,i21,sum);
+//     add(blueToRed,redToBlue,sum);
 //     multiply(outputMatrix,sum,simul);
 //     normalize(simul, simul, 0, 1, cv::NORM_MINMAX);
 //     simul.convertTo(simul,CV_8UC1,255,0);
@@ -231,7 +231,7 @@ int main(int argc, char** argv)
     Mat Purple,Purple_resized;
     Mat Purplebgr[3];   // Calibration destination array
     Mat bgr[3];   // Frame destination array
-    float resizeParam = 0.1;
+    float resizeParam = 0.1; // Resize Parameter
 
     VideoCapture cap(path);
 
@@ -252,14 +252,14 @@ int main(int argc, char** argv)
     int height = Purple_resized.rows;
 
     // Mat ones = Mat::ones(Size(Purple.cols, Purple.rows), 1);
-    // Mat Irn, Ibn;
-    // Mat Ibn = Mat(height, width, CV_8UC1);
-    // Mat Irn = Mat(height, width, CV_8UC1);
+    // Mat redNormalizationFactor, blueNormalizationFactor;
+    // Mat blueNormalizationFactor = Mat(height, width, CV_8UC1);
+    // Mat redNormalizationFactor = Mat(height, width, CV_8UC1);
     //Mat proc = Mat(height, width, CV_8UC1);
-    //Irn = Mat(2, 2, CV_8UC3, Scalar(1, 1, 1));
-    //cout << Irn;
-    Mat irn(width, height, CV_32FC1);
-    Mat ibn(width, height, CV_32FC1);
+    //redNormalizationFactor = Mat(2, 2, CV_8UC3, Scalar(1, 1, 1));
+    //cout << redNormalizationFactor;
+    Mat redNormalizationFactor(width, height, CV_32FC1);
+    Mat blueNormalizationFactor(width, height, CV_32FC1);
     // Mat PurpleF(width, height, CV_32FC3);
     Mat PurplebgrFB(width, height, CV_32FC1);
     Mat PurplebgrFR(width, height, CV_32FC1);
@@ -267,10 +267,10 @@ int main(int argc, char** argv)
 
     Purplebgr[0].setTo(1, Purplebgr[0] == 0);
     Purplebgr[2].setTo(1, Purplebgr[2] == 0);
-    Purplebgr[0].convertTo(PurplebgrFB,ibn.type());
-    Purplebgr[2].convertTo(PurplebgrFR,irn.type());
-    divide(1,PurplebgrFB,ibn);
-    divide(1,PurplebgrFR,irn);
+    Purplebgr[0].convertTo(PurplebgrFB,blueNormalizationFactor.type());
+    Purplebgr[2].convertTo(PurplebgrFR,redNormalizationFactor.type());
+    divide(1,PurplebgrFB,blueNormalizationFactor);
+    divide(1,PurplebgrFR,redNormalizationFactor);
     // In.setTo(0, In == 1);
 
     // Mat img2;
@@ -313,43 +313,43 @@ int main(int argc, char** argv)
             bitwise_and(image_resized,objects_only,image_proccesing);
             split(image_proccesing, bgr);//split source
             
-            bgr[0].convertTo(bgrFB,ibn.type());
-            bgr[2].convertTo(bgrFR,irn.type());
-            multiply(bgrFB,ibn,in1);
-            multiply(bgrFR,irn,in2);
+            bgr[0].convertTo(bgrFB,blueNormalizationFactor.type());
+            bgr[2].convertTo(bgrFR,redNormalizationFactor.type());
+            multiply(bgrFB,blueNormalizationFactor,blueNormalized);
+            multiply(bgrFR,redNormalizationFactor,redNormalized);
             
-            cout << "in1 = " << endl << " "  << in1 << endl << endl;
-            cout << "in2 = " << endl << " "  << in2 << endl << endl;
+            // cout << "blueNormalized = " << endl << " "  << blueNormalized << endl << endl;
+            // cout << "redNormalized = " << endl << " "  << redNormalized << endl << endl;
 
 
-            divide(in1,in2,i12);
-            divide(in2,in1,i21);
+            divide(blueNormalized,redNormalized,blueToRed);
+            divide(redNormalized,blueNormalized,redToBlue);
 
-            patchNaNs(i12,1);
-            patchNaNs(i21,1);
+            patchNaNs(blueToRed,1);
+            patchNaNs(redToBlue,1);
 
 
-            GaussianBlur(i12, i12, cv::Size(3, 3), 5, 5);
-            GaussianBlur(i21, i21, cv::Size(3, 3), 5, 5);
+            GaussianBlur(blueToRed, blueToRed, cv::Size(3, 3), 5, 5);
+            GaussianBlur(redToBlue, redToBlue, cv::Size(3, 3), 5, 5);
 
-            imshow("I12", i12);
-            imshow("I21", i21);
+            imshow("blueToRed", blueToRed);
+            imshow("redToBlue", redToBlue);
 
 
             // Object Simulation Algorithm
-            // simulateObject(i12,i21,objects_only);
-            cout << "I12 = " << endl << " "  << i12 << endl << endl;
-            simulateObjectv2(i12);
+            // simulateObject(blueToRed,redToBlue,objects_only);
+            // cout << "blueToRed = " << endl << " "  << blueToRed << endl << endl;
+            simulateObjectv2(blueToRed);
 
-            // floorThreshold(i12,thres12,0.2);
-            // floorThreshold(i21,thres21,0.2);
+            // floorThreshold(blueToRed,thres12,0.2);
+            // floorThreshold(redToBlue,thres21,0.2);
 
 
-            // makeReconR(i12,i21,final12);
-            // makeReconB(i12,i21,final21);
+            // makeReconR(blueToRed,redToBlue,final12);
+            // makeReconB(blueToRed,redToBlue,final21);
 
-            // imshow("ReconR", i12);
-            // imshow("ReconB", i21);
+            // imshow("ReconR", blueToRed);
+            // imshow("ReconB", redToBlue);
             
 
             // moveWindow("Raw Image",100,100);
