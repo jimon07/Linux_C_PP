@@ -231,14 +231,14 @@ int main(int argc, char** argv)
     Mat Purple,Purple_resized;
     Mat Purplebgr[3];   // Calibration destination array
     Mat bgr[3];   // Frame destination array
-    float resizeParam = 0.1; // Resize Parameter
+    float resizeParam = 0.5; // Resize Parameter
 
     VideoCapture cap(path);
 
     cap.set(cv::CAP_PROP_FOURCC, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'));     // More fps less resolution (at least for my setup)
-    // // cap.set(cv::CAP_PROP_FRAME_WIDTH, IMAGE_W);
-    // // cap.set(cv::CAP_PROP_FRAME_HEIGHT, IMAGE_H);
-    // // cap.set(cv::CAP_PROP_FPS, 60);
+    // cap.set(cv::CAP_PROP_FRAME_WIDTH, IMAGE_W);
+    // cap.set(cv::CAP_PROP_FRAME_HEIGHT, IMAGE_H);
+    // cap.set(cv::CAP_PROP_FPS, 60);
     // int dWidth = cap.get(cv::CAP_PROP_FRAME_WIDTH); 
     // int dHeight = cap.get(cv::CAP_PROP_FRAME_HEIGHT);
     // int fps_counter = cap.get(cv::CAP_PROP_FPS);
@@ -327,7 +327,9 @@ int main(int argc, char** argv)
 
             patchNaNs(blueToRed,1);
             patchNaNs(redToBlue,1);
-
+            // cout << "Blue to Red = " << endl << " "  << blueToRed << endl << endl;
+            // cout << "Red to Blue = " << endl << " "  << redToBlue << endl << endl;
+        
 
             GaussianBlur(blueToRed, blueToRed, cv::Size(3, 3), 5, 5);
             GaussianBlur(redToBlue, redToBlue, cv::Size(3, 3), 5, 5);
@@ -339,7 +341,7 @@ int main(int argc, char** argv)
             // Object Simulation Algorithm
             // simulateObject(blueToRed,redToBlue,objects_only);
             // cout << "blueToRed = " << endl << " "  << blueToRed << endl << endl;
-            simulateObjectv2(blueToRed);
+            simulateObjectv2(redToBlue);
 
             // floorThreshold(blueToRed,thres12,0.2);
             // floorThreshold(redToBlue,thres21,0.2);
@@ -368,7 +370,7 @@ int main(int argc, char** argv)
         imshow( "Contours", objects_img );
         cout << "Frame Time :" << (stopTime-startTime)*1000 << " | FPS : " << fps << endl;
         // Change to bigger number for delay
-        char key = waitKey(0);
+        char key = waitKey(50);
         if(key == 'p')
             playVideo = !playVideo;
     }

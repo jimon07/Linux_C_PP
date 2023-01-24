@@ -49,6 +49,7 @@ void simulateObjectv2(Mat blueToRed){
 
     Mat line,final,tmp,obj;
     float eThreshold = 0.2;
+    float objCols = (float)obj.cols;
     inRange(blueToRed,1-eThreshold,1+eThreshold,tmp);
     blueToRed.setTo(1,blueToRed > 1+eThreshold);
     blueToRed.setTo(-1,blueToRed < 1-eThreshold);
@@ -78,11 +79,15 @@ void simulateObjectv2(Mat blueToRed){
         // cout << "TMP = " << endl << " "  << tmp << endl << endl;
         // cout << tmp.type() << endl;
         multiply(tmp,final,obj);
-        cout << "Object = " << endl << " "  << obj << endl << endl;
+        // cout << "Object befor norm = " << endl << " "  << obj << endl << endl;
+        obj.at<float>(0, 0, 0) = obj.cols;
+        obj.at<float>(0, 1, 0) = -(obj.cols);
+        // cout << "Object = " << endl << " "  << obj << endl << endl;
         normalize(obj, obj, 0, 255, cv::NORM_MINMAX);
         obj.convertTo(obj,CV_8UC1);
-        cout << "ObjectNormalize = " << endl << " "  << obj << endl << endl;
-        // applyColorMap(obj,obj,2);
+        imshow("Object",obj);
+        // cout << "ObjectNormalize = " << endl << " "  << obj << endl << endl;
+        applyColorMap(obj,obj,2);
         // imshow("Final",final);
         imshow("Object",obj);
         // cout << "blueToRed inside = " << endl << " "  << blueToRed << endl << endl;
