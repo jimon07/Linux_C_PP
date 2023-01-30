@@ -11,6 +11,7 @@ using namespace std;
 
 // function declarations
 
+void calibration(Mat image);
 double getTime();
 static void floorThreshold(Mat inputMatrix,Mat& outputMatrix, float threshold);
 void simulateObject(Mat i12, Mat i21, Mat objects_only);

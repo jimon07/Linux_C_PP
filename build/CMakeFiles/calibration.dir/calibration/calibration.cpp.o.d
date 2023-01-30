@@ -1,7 +1,7 @@
-CMakeFiles/Diplo_c++.dir/includes/Camera_staff.cpp.o: \
- /home/jim/Desktop/Linux_C_PP/includes/Camera_staff.cpp \
+CMakeFiles/calibration.dir/calibration/calibration.cpp.o: \
+ /home/jim/Desktop/Linux_C_PP/calibration/calibration.cpp \
  /usr/include/stdc-predef.h \
- /home/jim/Desktop/Linux_C_PP/includes/Camera_staff.hpp \
+ /home/jim/Desktop/Linux_C_PP/includes/Custom_functions.hpp \
  /usr/local/include/opencv4/opencv2/opencv.hpp \
  /usr/local/include/opencv4/opencv2/opencv_modules.hpp \
  /usr/local/include/opencv4/opencv2/core.hpp \

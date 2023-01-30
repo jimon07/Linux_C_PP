@@ -536,6 +536,43 @@ testCustom/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/testCustom.dir/build.make CMakeFiles/testCustom.dir/build
 .PHONY : testCustom/fast
 
+#=============================================================================
+# Target rules for targets named calibration
+
+# Build rule for target.
+calibration: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 calibration
+.PHONY : calibration
+
+# fast build rule for target.
+calibration/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/calibration.dir/build.make CMakeFiles/calibration.dir/build
+.PHONY : calibration/fast
+
+calibration/calibration.o: calibration/calibration.cpp.o
+.PHONY : calibration/calibration.o
+
+# target to build an object file
+calibration/calibration.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/calibration.dir/build.make CMakeFiles/calibration.dir/calibration/calibration.cpp.o
+.PHONY : calibration/calibration.cpp.o
+
+calibration/calibration.i: calibration/calibration.cpp.i
+.PHONY : calibration/calibration.i
+
+# target to preprocess a source file
+calibration/calibration.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/calibration.dir/build.make CMakeFiles/calibration.dir/calibration/calibration.cpp.i
+.PHONY : calibration/calibration.cpp.i
+
+calibration/calibration.s: calibration/calibration.cpp.s
+.PHONY : calibration/calibration.s
+
+# target to generate assembly for a file
+calibration/calibration.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/calibration.dir/build.make CMakeFiles/calibration.dir/calibration/calibration.cpp.s
+.PHONY : calibration/calibration.cpp.s
+
 includes/Custom_functions.o: includes/Custom_functions.cpp.o
 .PHONY : includes/Custom_functions.o
 
@@ -543,6 +580,7 @@ includes/Custom_functions.o: includes/Custom_functions.cpp.o
 includes/Custom_functions.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Diplo_c++.dir/build.make CMakeFiles/Diplo_c++.dir/includes/Custom_functions.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/testCustom.dir/build.make CMakeFiles/testCustom.dir/includes/Custom_functions.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/calibration.dir/build.make CMakeFiles/calibration.dir/includes/Custom_functions.cpp.o
 .PHONY : includes/Custom_functions.cpp.o
 
 includes/Custom_functions.i: includes/Custom_functions.cpp.i
@@ -552,6 +590,7 @@ includes/Custom_functions.i: includes/Custom_functions.cpp.i
 includes/Custom_functions.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Diplo_c++.dir/build.make CMakeFiles/Diplo_c++.dir/includes/Custom_functions.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/testCustom.dir/build.make CMakeFiles/testCustom.dir/includes/Custom_functions.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/calibration.dir/build.make CMakeFiles/calibration.dir/includes/Custom_functions.cpp.i
 .PHONY : includes/Custom_functions.cpp.i
 
 includes/Custom_functions.s: includes/Custom_functions.cpp.s
@@ -561,6 +600,7 @@ includes/Custom_functions.s: includes/Custom_functions.cpp.s
 includes/Custom_functions.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Diplo_c++.dir/build.make CMakeFiles/Diplo_c++.dir/includes/Custom_functions.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/testCustom.dir/build.make CMakeFiles/testCustom.dir/includes/Custom_functions.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/calibration.dir/build.make CMakeFiles/calibration.dir/includes/Custom_functions.cpp.s
 .PHONY : includes/Custom_functions.cpp.s
 
 main.o: main.cpp.o
@@ -651,7 +691,11 @@ help:
 	@echo "... NightlyTest"
 	@echo "... NightlyUpdate"
 	@echo "... Diplo_c++"
+	@echo "... calibration"
 	@echo "... testCustom"
+	@echo "... calibration/calibration.o"
+	@echo "... calibration/calibration.i"
+	@echo "... calibration/calibration.s"
 	@echo "... includes/Custom_functions.o"
 	@echo "... includes/Custom_functions.i"
 	@echo "... includes/Custom_functions.s"

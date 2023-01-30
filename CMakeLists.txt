@@ -22,4 +22,6 @@ set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)
 
 add_executable(testCustom  test/testCustom.cpp includes/Custom_functions.cpp )
+add_executable(calibration  calibration/calibration.cpp includes/Custom_functions.cpp )
 target_link_libraries( testCustom ${OpenCV_LIBS} )
+target_link_libraries( calibration ${OpenCV_LIBS} )

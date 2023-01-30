@@ -231,9 +231,9 @@ int main(int argc, char** argv)
     Mat Purple,Purple_resized;
     Mat Purplebgr[3];   // Calibration destination array
     Mat bgr[3];   // Frame destination array
-    float resizeParam = 0.5; // Resize Parameter
+    float resizeParam = 1; // Resize Parameter
 
-    VideoCapture cap(path);
+    VideoCapture cap(0);
 
     cap.set(cv::CAP_PROP_FOURCC, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'));     // More fps less resolution (at least for my setup)
     // cap.set(cv::CAP_PROP_FRAME_WIDTH, IMAGE_W);
@@ -293,8 +293,8 @@ int main(int argc, char** argv)
 
     while (true)
     {
-        if (playVideo)
-        {
+           if (playVideo)
+     {
             startTime = getTime();
             cap.read(image);
         }
@@ -304,6 +304,8 @@ int main(int argc, char** argv)
             return -1;
         }
         resize(image,image_resized,Size(),resizeParam,resizeParam);
+
+        calibration(image_resized);
         objects_only = Mat::zeros( image_resized.size(), CV_8UC3 );
         // imshow("Raw Image",image_resized);
         findObjects(lowThreshold,0);
@@ -341,7 +343,7 @@ int main(int argc, char** argv)
             // Object Simulation Algorithm
             // simulateObject(blueToRed,redToBlue,objects_only);
             // cout << "blueToRed = " << endl << " "  << blueToRed << endl << endl;
-            simulateObjectv2(redToBlue);
+            simulateObjectv2(blueToRed);
 
             // floorThreshold(blueToRed,thres12,0.2);
             // floorThreshold(redToBlue,thres21,0.2);
