@@ -233,7 +233,7 @@ int main(int argc, char** argv)
         // imshow( "Contours", objects_img );
         cout << "Frame Time :" << (stopTime-startTime)*1000 << " | FPS : " << fps << endl;
         // Change to bigger number for delay
-        char key = waitKey(0);
+        char key = waitKey(1);
         if(key == 'p')
             playVideo = !playVideo;
     }
