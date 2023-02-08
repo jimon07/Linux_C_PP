@@ -98,6 +98,10 @@ void simulateObjectv2(Mat blueToRed){
     blueToRed.setTo(1,blueToRed > 1+eThreshold);
     blueToRed.setTo(-1,blueToRed < 1-eThreshold);
     blueToRed.setTo(0,tmp);
+
+    imshow("Blue Test",blueToRed);
+    // cout << "Blue Test = " << endl << " "  << blueToRed << endl << endl;
+
     
     for (int i = 0; i < blueToRed.rows; i++)
     {
@@ -129,7 +133,7 @@ void simulateObjectv2(Mat blueToRed){
         // cout << "Object = " << endl << " "  << obj << endl << endl;
         normalize(obj, obj, 0, 255, cv::NORM_MINMAX);
         obj.convertTo(obj,CV_8UC1);
-        imshow("Object before color map",obj);
+        // imshow("Object before color map",obj);
         // cout << "ObjectNormalize = " << endl << " "  << obj << endl << endl;
         applyColorMap(obj,obj,2);
         // imshow("Final",final);

@@ -227,13 +227,13 @@ int main(int argc, char** argv)
 {
     
     double startTime,stopTime;
-    string path = "/home/jim/Desktop/Linux_C_PP/IMG_2167.mp4";
+    string path = "/home/jim/Desktop/Linux_C_PP/iphone.mp4";
     Mat Purple,Purple_resized;
     Mat Purplebgr[3];   // Calibration destination array
     Mat bgr[3];   // Frame destination array
-    float resizeParam = 1; // Resize Parameter
+    float resizeParam = 0.3; // Resize Parameter
 
-    VideoCapture cap(0);
+    VideoCapture cap(path);
 
     cap.set(cv::CAP_PROP_FOURCC, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'));     // More fps less resolution (at least for my setup)
     // cap.set(cv::CAP_PROP_FRAME_WIDTH, IMAGE_W);
@@ -260,7 +260,6 @@ int main(int argc, char** argv)
     //cout << redNormalizationFactor;
     Mat redNormalizationFactor(width, height, CV_32FC1);
     Mat blueNormalizationFactor(width, height, CV_32FC1);
-    // Mat PurpleF(width, height, CV_32FC3);
     Mat PurplebgrFB(width, height, CV_32FC1);
     Mat PurplebgrFR(width, height, CV_32FC1);
     
@@ -305,7 +304,7 @@ int main(int argc, char** argv)
         }
         resize(image,image_resized,Size(),resizeParam,resizeParam);
 
-        calibration(image_resized);
+        // calibration(image_resized);
         objects_only = Mat::zeros( image_resized.size(), CV_8UC3 );
         // imshow("Raw Image",image_resized);
         findObjects(lowThreshold,0);
@@ -335,6 +334,7 @@ int main(int argc, char** argv)
 
             GaussianBlur(blueToRed, blueToRed, cv::Size(3, 3), 5, 5);
             GaussianBlur(redToBlue, redToBlue, cv::Size(3, 3), 5, 5);
+
 
             imshow("blueToRed", blueToRed);
             imshow("redToBlue", redToBlue);
@@ -372,7 +372,7 @@ int main(int argc, char** argv)
         imshow( "Contours", objects_img );
         cout << "Frame Time :" << (stopTime-startTime)*1000 << " | FPS : " << fps << endl;
         // Change to bigger number for delay
-        char key = waitKey(50);
+        char key = waitKey(0);
         if(key == 'p')
             playVideo = !playVideo;
     }
