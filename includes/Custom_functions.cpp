@@ -89,11 +89,21 @@ void simulateObject(Mat blueToRed, Mat i21, Mat objects_only){
     imshow("Object" , simul); 
 }
 
-void simulateObjectv2(Mat blueToRed){
+void simulateObjectv2(Mat blueToRed, Mat redToBlue)
+{
 
-    Mat line,final,tmp,obj;
+    Mat line,final,tmp,obj,blueSlopes,redSlopes,slopes;
+    double minVal, maxVal;
     float eThreshold = 0.2;
-    float objCols = (float)obj.cols;
+    float pixelDepth = 1.18; // 1mm pixel depth
+    blueSlopes = blueToRed.clone();
+    blueSlopes.setTo(0,blueSlopes < 1+eThreshold);
+    redSlopes = redToBlue.clone();
+    redSlopes.setTo(0,redSlopes < 1+eThreshold);
+    add(blueSlopes,redSlopes,slopes);
+
+    imshow("Slopes",slopes);
+
     inRange(blueToRed,1-eThreshold,1+eThreshold,tmp);
     blueToRed.setTo(1,blueToRed > 1+eThreshold);
     blueToRed.setTo(-1,blueToRed < 1-eThreshold);
@@ -101,7 +111,8 @@ void simulateObjectv2(Mat blueToRed){
 
     imshow("Blue Test",blueToRed);
     // cout << "Blue Test = " << endl << " "  << blueToRed << endl << endl;
-
+    // cout << "Red Test = " << endl << " "  << redToBlue << endl << endl;
+    // cout << "slopes = " << endl << " "  << slopes << endl << endl;
     
     for (int i = 0; i < blueToRed.rows; i++)
     {
@@ -126,14 +137,25 @@ void simulateObjectv2(Mat blueToRed){
         // imshow("Temp",tmp);
         // cout << "TMP = " << endl << " "  << tmp << endl << endl;
         // cout << tmp.type() << endl;
+
         multiply(tmp,final,obj);
+        multiply(slopes,obj,obj,pixelDepth);
+        // multiply(obj,pixelDepth,obj);
+
+        cout << "Object befor norm = " << endl << " "  << obj << endl << endl;
+        // obj.at<float>(0, 0, 0) = obj.cols * pixelDepth;
+        // obj.at<float>(0, 1, 0) = -(obj.cols * pixelDepth);
+        cv:minMaxIdx(obj, &minVal, &maxVal);
+        cout << "Max = " << maxVal << " Min = "<< minVal << endl;
+        obj.at<float>(0, 0, 0) = -2000;
+        obj.at<float>(0, 1, 0) = 2000;
         // cout << "Object befor norm = " << endl << " "  << obj << endl << endl;
-        obj.at<float>(0, 0, 0) = obj.cols;
-        obj.at<float>(0, 1, 0) = -(obj.cols);
-        // cout << "Object = " << endl << " "  << obj << endl << endl;
+        imshow("Object before norm",obj);
         normalize(obj, obj, 0, 255, cv::NORM_MINMAX);
+        // cout << "Object After norm to 0-255 = " << endl << " "  << obj << endl << endl;
+        // normalize(obj, obj, -(obj.cols * pixelDepth), obj.cols * pixelDepth, cv::NORM_MINMAX);
         obj.convertTo(obj,CV_8UC1);
-        // imshow("Object before color map",obj);
+        imshow("Object before color map",obj);
         // cout << "ObjectNormalize = " << endl << " "  << obj << endl << endl;
         applyColorMap(obj,obj,2);
         // imshow("Final",final);
@@ -142,7 +164,6 @@ void simulateObjectv2(Mat blueToRed){
     
         // cout << "Final = " << endl << " "  << final << endl << endl;
         // waitKey(1);
-
 }
 void findGoodContours(vector<vector<Point> >& contours,vector<vector<Point> >& GoodContours,int minObjectArea){
     

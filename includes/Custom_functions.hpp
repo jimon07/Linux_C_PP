@@ -2,6 +2,7 @@
 #define CAMERA_STAFF_HPP
 
 #include <opencv2/opencv.hpp>
+#include <opencv2/core.hpp>
 #include <sys/time.h>
 #include <stdio.h>
 
@@ -15,6 +16,6 @@ void calibration(Mat image);
 double getTime();
 static void floorThreshold(Mat inputMatrix,Mat& outputMatrix, float threshold);
 void simulateObject(Mat i12, Mat i21, Mat objects_only);
-void simulateObjectv2(Mat i12);
+void simulateObjectv2(Mat blueToRed, Mat redToBlue);
 void findGoodContours(vector<vector<Point> >& contours,vector<vector<Point> >& GoodContours,int minObjectArea);
 #endif

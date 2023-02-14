@@ -549,6 +549,19 @@ calibration/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/calibration.dir/build.make CMakeFiles/calibration.dir/build
 .PHONY : calibration/fast
 
+#=============================================================================
+# Target rules for targets named cameratest
+
+# Build rule for target.
+cameratest: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 cameratest
+.PHONY : cameratest
+
+# fast build rule for target.
+cameratest/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/cameratest.dir/build.make CMakeFiles/cameratest.dir/build
+.PHONY : cameratest/fast
+
 calibration/calibration.o: calibration/calibration.cpp.o
 .PHONY : calibration/calibration.o
 
@@ -573,6 +586,30 @@ calibration/calibration.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/calibration.dir/build.make CMakeFiles/calibration.dir/calibration/calibration.cpp.s
 .PHONY : calibration/calibration.cpp.s
 
+cameratest/cameratest.o: cameratest/cameratest.cpp.o
+.PHONY : cameratest/cameratest.o
+
+# target to build an object file
+cameratest/cameratest.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/cameratest.dir/build.make CMakeFiles/cameratest.dir/cameratest/cameratest.cpp.o
+.PHONY : cameratest/cameratest.cpp.o
+
+cameratest/cameratest.i: cameratest/cameratest.cpp.i
+.PHONY : cameratest/cameratest.i
+
+# target to preprocess a source file
+cameratest/cameratest.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/cameratest.dir/build.make CMakeFiles/cameratest.dir/cameratest/cameratest.cpp.i
+.PHONY : cameratest/cameratest.cpp.i
+
+cameratest/cameratest.s: cameratest/cameratest.cpp.s
+.PHONY : cameratest/cameratest.s
+
+# target to generate assembly for a file
+cameratest/cameratest.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/cameratest.dir/build.make CMakeFiles/cameratest.dir/cameratest/cameratest.cpp.s
+.PHONY : cameratest/cameratest.cpp.s
+
 includes/Custom_functions.o: includes/Custom_functions.cpp.o
 .PHONY : includes/Custom_functions.o
 
@@ -581,6 +618,7 @@ includes/Custom_functions.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Diplo_c++.dir/build.make CMakeFiles/Diplo_c++.dir/includes/Custom_functions.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/testCustom.dir/build.make CMakeFiles/testCustom.dir/includes/Custom_functions.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/calibration.dir/build.make CMakeFiles/calibration.dir/includes/Custom_functions.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/cameratest.dir/build.make CMakeFiles/cameratest.dir/includes/Custom_functions.cpp.o
 .PHONY : includes/Custom_functions.cpp.o
 
 includes/Custom_functions.i: includes/Custom_functions.cpp.i
@@ -591,6 +629,7 @@ includes/Custom_functions.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Diplo_c++.dir/build.make CMakeFiles/Diplo_c++.dir/includes/Custom_functions.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/testCustom.dir/build.make CMakeFiles/testCustom.dir/includes/Custom_functions.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/calibration.dir/build.make CMakeFiles/calibration.dir/includes/Custom_functions.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/cameratest.dir/build.make CMakeFiles/cameratest.dir/includes/Custom_functions.cpp.i
 .PHONY : includes/Custom_functions.cpp.i
 
 includes/Custom_functions.s: includes/Custom_functions.cpp.s
@@ -601,6 +640,7 @@ includes/Custom_functions.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Diplo_c++.dir/build.make CMakeFiles/Diplo_c++.dir/includes/Custom_functions.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/testCustom.dir/build.make CMakeFiles/testCustom.dir/includes/Custom_functions.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/calibration.dir/build.make CMakeFiles/calibration.dir/includes/Custom_functions.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/cameratest.dir/build.make CMakeFiles/cameratest.dir/includes/Custom_functions.cpp.s
 .PHONY : includes/Custom_functions.cpp.s
 
 main.o: main.cpp.o
@@ -692,10 +732,14 @@ help:
 	@echo "... NightlyUpdate"
 	@echo "... Diplo_c++"
 	@echo "... calibration"
+	@echo "... cameratest"
 	@echo "... testCustom"
 	@echo "... calibration/calibration.o"
 	@echo "... calibration/calibration.i"
 	@echo "... calibration/calibration.s"
+	@echo "... cameratest/cameratest.o"
+	@echo "... cameratest/cameratest.i"
+	@echo "... cameratest/cameratest.s"
 	@echo "... includes/Custom_functions.o"
 	@echo "... includes/Custom_functions.i"
 	@echo "... includes/Custom_functions.s"

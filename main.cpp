@@ -343,7 +343,7 @@ int main(int argc, char** argv)
             // Object Simulation Algorithm
             // simulateObject(blueToRed,redToBlue,objects_only);
             // cout << "blueToRed = " << endl << " "  << blueToRed << endl << endl;
-            simulateObjectv2(blueToRed);
+            simulateObjectv2(blueToRed,redToBlue);
 
             // floorThreshold(blueToRed,thres12,0.2);
             // floorThreshold(redToBlue,thres21,0.2);

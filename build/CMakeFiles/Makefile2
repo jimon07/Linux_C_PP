@@ -66,6 +66,7 @@ CMAKE_BINARY_DIR = /home/jim/Desktop/Linux_C_PP/build
 all: CMakeFiles/Diplo_c++.dir/all
 all: CMakeFiles/testCustom.dir/all
 all: CMakeFiles/calibration.dir/all
+all: CMakeFiles/cameratest.dir/all
 .PHONY : all
 
 # The main recursive "preinstall" target.
@@ -104,6 +105,7 @@ clean: CMakeFiles/ContinuousSubmit.dir/clean
 clean: CMakeFiles/Diplo_c++.dir/clean
 clean: CMakeFiles/testCustom.dir/clean
 clean: CMakeFiles/calibration.dir/clean
+clean: CMakeFiles/cameratest.dir/clean
 .PHONY : clean
 
 #=============================================================================
@@ -867,7 +869,7 @@ CMakeFiles/Diplo_c++.dir/clean:
 CMakeFiles/testCustom.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/testCustom.dir/build.make CMakeFiles/testCustom.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/testCustom.dir/build.make CMakeFiles/testCustom.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/jim/Desktop/Linux_C_PP/build/CMakeFiles --progress-num=7,8,9 "Built target testCustom"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/jim/Desktop/Linux_C_PP/build/CMakeFiles --progress-num=10,11,12 "Built target testCustom"
 .PHONY : CMakeFiles/testCustom.dir/all
 
 # Build rule for subdir invocation for target.
@@ -911,6 +913,32 @@ calibration: CMakeFiles/calibration.dir/rule
 CMakeFiles/calibration.dir/clean:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/calibration.dir/build.make CMakeFiles/calibration.dir/clean
 .PHONY : CMakeFiles/calibration.dir/clean
+
+#=============================================================================
+# Target rules for target CMakeFiles/cameratest.dir
+
+# All Build rule for target.
+CMakeFiles/cameratest.dir/all:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/cameratest.dir/build.make CMakeFiles/cameratest.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/cameratest.dir/build.make CMakeFiles/cameratest.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/jim/Desktop/Linux_C_PP/build/CMakeFiles --progress-num=7,8,9 "Built target cameratest"
+.PHONY : CMakeFiles/cameratest.dir/all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/cameratest.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/jim/Desktop/Linux_C_PP/build/CMakeFiles 3
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/cameratest.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/jim/Desktop/Linux_C_PP/build/CMakeFiles 0
+.PHONY : CMakeFiles/cameratest.dir/rule
+
+# Convenience name for target.
+cameratest: CMakeFiles/cameratest.dir/rule
+.PHONY : cameratest
+
+# clean rule for target.
+CMakeFiles/cameratest.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/cameratest.dir/build.make CMakeFiles/cameratest.dir/clean
+.PHONY : CMakeFiles/cameratest.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.

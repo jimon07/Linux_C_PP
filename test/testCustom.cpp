@@ -1,4 +1,3 @@
-
 #include "Custom_functions.hpp"
 #include <limits>
 
@@ -125,14 +124,14 @@ int main(int argc, char** argv)
 {
     
     double startTime,stopTime;
-    string path = "/home/jim/Desktop/Linux_C_PP/iphone2.mp4";
+    string path = "/home/jim/Desktop/Linux_C_PP/iPhone 2 croped.mp4";
     Mat Purple,Purple_resized;
     Mat Purplebgr[3];   // Calibration destination array
     Mat bgr[3];   // Frame destination array
-    float resizeParam = 0.3; // Resize Parameter
+    float resizeParam = 0.2; // Resize Parameter
 
     VideoCapture cap(path);
-
+    double capfps = cap.get(CAP_PROP_FPS);
     cap.set(cv::CAP_PROP_FOURCC, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'));     // More fps less resolution (at least for my setup)
 
     cap.read(Purple);
@@ -152,10 +151,12 @@ int main(int argc, char** argv)
 
     Purplebgr[0].setTo(1, Purplebgr[0] == 0);
     Purplebgr[2].setTo(1, Purplebgr[2] == 0);
+    
     Purplebgr[0].convertTo(PurplebgrFB,blueNormalizationFactor.type());
     Purplebgr[2].convertTo(PurplebgrFR,redNormalizationFactor.type());
     divide(1,PurplebgrFB,blueNormalizationFactor);
     divide(1,PurplebgrFR,redNormalizationFactor);
+
 
     namedWindow("TrackBars", WINDOW_AUTOSIZE);
     namedWindow("Contours", WINDOW_AUTOSIZE);
@@ -191,11 +192,16 @@ int main(int argc, char** argv)
             // split(image_proccesing, bgr);//split source
             imshow("Image", image_resized);
             split(image_resized, bgr);//split source
-            
+
+            bgr[0].setTo(1, bgr[0] == 0);
+            bgr[2].setTo(1, bgr[2] == 0);
             bgr[0].convertTo(bgrFB,blueNormalizationFactor.type());
             bgr[2].convertTo(bgrFR,redNormalizationFactor.type());
             multiply(bgrFB,blueNormalizationFactor,blueNormalized);
             multiply(bgrFR,redNormalizationFactor,redNormalized);
+
+            // cout << "BGRFB = " << endl << " "  << blueNormalizationFactor << endl << endl;
+
             
             // cout << "blueNormalized = " << endl << " "  << blueNormalized << endl << endl;
             // cout << "redNormalized = " << endl << " "  << redNormalized << endl << endl;
@@ -221,7 +227,7 @@ int main(int argc, char** argv)
             // Object Simulation Algorithm
             // simulateObject(blueToRed,redToBlue,objects_only);
             // cout << "blueToRed = " << endl << " "  << blueToRed << endl << endl;
-            simulateObjectv2(redToBlue);
+            simulateObjectv2(redToBlue,blueToRed);
 
         }else{
             printf("No Objects \n");
@@ -231,9 +237,9 @@ int main(int argc, char** argv)
         int fps = 1/(stopTime-startTime);
         putText(objects_img,"FPS:" + to_string(fps),Point(10,30),FONT_HERSHEY_PLAIN, 1 ,colorGreen,1.6);
         // imshow( "Contours", objects_img );
-        cout << "Frame Time :" << (stopTime-startTime)*1000 << " | FPS : " << fps << endl;
+        cout << "Frame Time :" << (stopTime-startTime)*1000 << " | FPS : " << fps << "cap FPS: "<< capfps << endl;
         // Change to bigger number for delay
-        char key = waitKey(1);
+        char key = waitKey(0);
         if(key == 'p')
             playVideo = !playVideo;
     }
