@@ -7,24 +7,30 @@ using namespace std;
 
 int main(int argc, char** argv)
 {
-    // Create a test matrix
-    Mat mat = (Mat_<float>(3,3) << -1000, 0, 1000,
-                                    500, 250, 750,
-                                    -500, -250, -750);
-    cout << "Matrix: " << endl << mat << endl;
+  // Load the original image
+cv::Mat img = cv::imread("/home/jim/Desktop/Linux_C_PP/test/pexels-rahul-695644.jpg",IMREAD_GRAYSCALE);
 
-    // Create a named window to display the image
-    namedWindow("Matrix", WINDOW_NORMAL);
+// Define the size and position of the gradient rectangle
+int rect_x = 50;
+int rect_y = 50;
+int rect_width = 200;
+int rect_height = 100;
 
-    // Convert the matrix to a 8-bit image and apply a color map
-    Mat color_mat;
-    mat.convertTo(color_mat, CV_8UC1, 255.0 / 1000.0);
-    applyColorMap(color_mat, color_mat, COLORMAP_JET);
+// Create a gradient image using the Jet colormap
+cv::Mat gradient(rect_height, rect_width, CV_8UC1);
+cv::applyColorMap(cv::Mat(cv::Size(rect_width, rect_height), CV_32FC1, cv::Scalar(0.0)), gradient, cv::COLORMAP_JET);
 
-    // Show the image in the window
-    imshow("Matrix", color_mat);
+// Create a mask for the gradient rectangle
+cv::Mat mask(img.size(), CV_8UC1, cv::Scalar(0));
+cv::Rect rect(rect_x, rect_y, rect_width, rect_height);
+mask(rect) = 255;
 
-    // Wait for a key press and return
-    waitKey(0);
-    return 0;
+// Copy the gradient rectangle into the main image
+cv::Mat result;
+img.copyTo(result);
+gradient.copyTo(result, mask);
+
+// Display the result
+cv::imshow("Result", result);
+cv::waitKey(0);
 }

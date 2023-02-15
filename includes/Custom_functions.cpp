@@ -142,7 +142,7 @@ void simulateObjectv2(Mat blueToRed, Mat redToBlue)
         multiply(slopes,obj,obj,pixelDepth);
         // multiply(obj,pixelDepth,obj);
 
-        cout << "Object befor norm = " << endl << " "  << obj << endl << endl;
+        // cout << "Object befor norm = " << endl << " "  << obj << endl << endl;
         // obj.at<float>(0, 0, 0) = obj.cols * pixelDepth;
         // obj.at<float>(0, 1, 0) = -(obj.cols * pixelDepth);
         cv:minMaxIdx(obj, &minVal, &maxVal);
@@ -150,20 +150,81 @@ void simulateObjectv2(Mat blueToRed, Mat redToBlue)
         obj.at<float>(0, 0, 0) = -2000;
         obj.at<float>(0, 1, 0) = 2000;
         // cout << "Object befor norm = " << endl << " "  << obj << endl << endl;
-        imshow("Object before norm",obj);
-        normalize(obj, obj, 0, 255, cv::NORM_MINMAX);
+        // imshow("Object before norm",obj);
+        // normalize(obj, obj, 0, 255, cv::NORM_MINMAX);
         // cout << "Object After norm to 0-255 = " << endl << " "  << obj << endl << endl;
         // normalize(obj, obj, -(obj.cols * pixelDepth), obj.cols * pixelDepth, cv::NORM_MINMAX);
-        obj.convertTo(obj,CV_8UC1);
-        imshow("Object before color map",obj);
+        
+        cv::Mat out;
+        color_map(obj, out, cv::COLORMAP_JET);
+
+        imshow("Test",out);
+
+        // obj.convertTo(obj,CV_8UC1);
+
+
+        // imshow("Object before color map",obj);
         // cout << "ObjectNormalize = " << endl << " "  << obj << endl << endl;
-        applyColorMap(obj,obj,2);
+        
+        
+        // applyColorMap(obj,obj,2);
         // imshow("Final",final);
-        imshow("Object",obj);
         // cout << "blueToRed inside = " << endl << " "  << blueToRed << endl << endl;
     
         // cout << "Final = " << endl << " "  << final << endl << endl;
         // waitKey(1);
+
+        
+        // imshow("Object",obj);
+}
+
+void color_map(cv::Mat& input /*CV_32FC1*/, cv::Mat& dest, int color_map){
+
+  int num_bar_w=30;
+  int color_bar_w=10;
+  int vline=10;
+
+  cv::Mat win_mat(cv::Size(input.cols+num_bar_w+num_bar_w+vline, input.rows), CV_8UC3, cv::Scalar(255,255,255));
+
+  //Input image to
+  double Min, Max;
+  cv::minMaxLoc(input, &Min, &Max);
+  int max_int=ceil(Max);
+
+  std::cout<<" Min "<< Min<<" Max "<< Max<<std::endl;
+
+  input.convertTo(input,CV_8UC3,255.0/(Max-Min),-255.0*Min/(Max-Min));
+  input.convertTo(input, CV_8UC3);
+
+  cv::Mat M;
+  cv::applyColorMap(input, M, color_map);
+
+  M.copyTo(win_mat(cv::Rect( 0, 0, input.cols, input.rows)));
+
+  //Scale
+  cv::Mat num_window(cv::Size(num_bar_w, input.rows), CV_8UC3, cv::Scalar(255,255,255));
+  int val= -20;
+  for(int i=0; i<=num_window.rows; i++){
+        int j=50*i*input.rows/max_int;
+        val++;
+        cv::putText(num_window, std::to_string(val), cv::Point(5, num_window.rows-j-5),cv::FONT_HERSHEY_PLAIN, 0.5 , cv::Scalar(0,0,0), 0.05 , 2 , false);
+  }
+
+  //color bar
+  cv::Mat color_bar(cv::Size(color_bar_w, input.rows), CV_8UC3, cv::Scalar(255,255,255));
+  cv::Mat cb;
+  for(int i=0; i<color_bar.rows; i++){
+    for(int j=0; j<color_bar_w; j++){
+      int v=255-255*i/color_bar.rows;
+      color_bar.at<cv::Vec3b>(i,j)=cv::Vec3b(v,v,v);
+    }
+  }
+
+  color_bar.convertTo(color_bar, CV_8UC3);
+  cv::applyColorMap(color_bar, cb, color_map);
+  num_window.copyTo(win_mat(cv::Rect(input.cols+vline+color_bar_w, 0, num_bar_w, input.rows)));
+  cb.copyTo(win_mat(cv::Rect(input.cols+vline, 0, color_bar_w, input.rows)));
+  dest=win_mat.clone();
 }
 void findGoodContours(vector<vector<Point> >& contours,vector<vector<Point> >& GoodContours,int minObjectArea){
     
