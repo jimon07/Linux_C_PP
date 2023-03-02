@@ -95,7 +95,7 @@ void simulateObjectv2(Mat blueToRed, Mat redToBlue)
     Mat line,final,tmp,obj,blueSlopes,redSlopes,slopes;
     double minVal, maxVal;
     float eThreshold = 0.2;
-    float pixelDepth = 1.18; // 1mm pixel depth
+    float pixelDepth = 0.42; // mm pixel depth
     blueSlopes = blueToRed.clone();
     blueSlopes.setTo(0,blueSlopes < 1+eThreshold);
     redSlopes = redToBlue.clone();
@@ -147,8 +147,10 @@ void simulateObjectv2(Mat blueToRed, Mat redToBlue)
         // obj.at<float>(0, 1, 0) = -(obj.cols * pixelDepth);
         cv:minMaxIdx(obj, &minVal, &maxVal);
         cout << "Max = " << maxVal << " Min = "<< minVal << endl;
-        obj.at<float>(0, 0, 0) = -2000;
-        obj.at<float>(0, 1, 0) = 2000;
+        obj.setTo(1000,obj > 1000);
+        obj.setTo(-1000,obj < -1000);
+        obj.at<float>(0, 0, 0) = -1000;
+        obj.at<float>(0, 1, 0) = 1000;
         // cout << "Object befor norm = " << endl << " "  << obj << endl << endl;
         // imshow("Object before norm",obj);
         // normalize(obj, obj, 0, 255, cv::NORM_MINMAX);
@@ -180,7 +182,7 @@ void simulateObjectv2(Mat blueToRed, Mat redToBlue)
 
 void color_map(cv::Mat& input /*CV_32FC1*/, cv::Mat& dest, int color_map){
 
-  int num_bar_w=30;
+  int num_bar_w=40;
   int color_bar_w=10;
   int vline=10;
 
@@ -203,11 +205,11 @@ void color_map(cv::Mat& input /*CV_32FC1*/, cv::Mat& dest, int color_map){
 
   //Scale
   cv::Mat num_window(cv::Size(num_bar_w, input.rows), CV_8UC3, cv::Scalar(255,255,255));
-  int val= -20;
+  int val= -10;
   for(int i=0; i<=num_window.rows; i++){
         int j=50*i*input.rows/max_int;
         val++;
-        cv::putText(num_window, std::to_string(val), cv::Point(5, num_window.rows-j-5),cv::FONT_HERSHEY_PLAIN, 0.5 , cv::Scalar(0,0,0), 0.05 , 2 , false);
+        cv::putText(num_window, std::to_string(val), cv::Point(5, num_window.rows-j-5),cv::FONT_HERSHEY_PLAIN, 0.8 , cv::Scalar(0,0,0), 0.1 , 2 , false);
   }
 
   //color bar
