@@ -5,7 +5,7 @@ int main(int argc, char** argv)
 {
 
     // string path = "/home/jim/Desktop/Linux_C_PP/IMG_2167.mp4";
-    VideoCapture cap(0);
+    VideoCapture cap(2);
     Mat image;
     vector<Mat> bgr;
 

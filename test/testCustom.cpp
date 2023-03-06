@@ -128,12 +128,12 @@ int main(int argc, char** argv)
     Mat Purple,Purple_resized;
     Mat Purplebgr[3];   // Calibration destination array
     Mat bgr[3];   // Frame destination array
-    float resizeParam = 0.8; // Resize Parameter
+    float resizeParam = 1; // Resize Parameter
 
-    VideoCapture cap(0);
+    VideoCapture cap(1);
     double capfps = cap.get(CAP_PROP_FPS);
-    cap.set(cv::CAP_PROP_FOURCC, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'));     // More fps less resolution (at least for my setup)
-    cap.set(cv::CAP_PROP_AUTO_EXPOSURE, 0.25);
+    // cap.set(cv::CAP_PROP_FOURCC, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'));     // More fps less resolution (at least for my setup)
+    cap.set(cv::CAP_PROP_AUTO_EXPOSURE, 1);
     cap.read(Purple);
     resize(Purple,Purple_resized,Size(),resizeParam,resizeParam);
     split(Purple_resized, Purplebgr);
@@ -216,8 +216,8 @@ int main(int argc, char** argv)
             // cout << "Red to Blue = " << endl << " "  << redToBlue << endl << endl;
         
 
-            GaussianBlur(blueToRed, blueToRed, cv::Size(3, 3), 5, 5);
-            GaussianBlur(redToBlue, redToBlue, cv::Size(3, 3), 5, 5);
+            GaussianBlur(blueToRed, blueToRed, cv::Size(5, 5), 5, 5);
+            GaussianBlur(redToBlue, redToBlue, cv::Size(5, 5), 5, 5);
 
 
             imshow("blueToRed", blueToRed);
