@@ -233,7 +233,7 @@ int main(int argc, char** argv)
     Mat bgr[3];   // Frame destination array
     float resizeParam = 0.3; // Resize Parameter
 
-    VideoCapture cap(path);
+    VideoCapture cap(1, CAP_V4L2);;
 
     cap.set(cv::CAP_PROP_FOURCC, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'));     // More fps less resolution (at least for my setup)
     // cap.set(cv::CAP_PROP_FRAME_WIDTH, IMAGE_W);

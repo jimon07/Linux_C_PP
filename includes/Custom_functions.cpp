@@ -94,8 +94,8 @@ void simulateObjectv2(Mat blueToRed, Mat redToBlue)
 
     Mat line,final,tmp,obj,blueSlopes,redSlopes,slopes;
     double minVal, maxVal;
-    float eThreshold = 0.2;
-    float pixelDepth = 0.75; // mm pixel depth
+    float eThreshold = 0.05;
+    float pixelDepth = 1.2; // mm pixel depth
     blueSlopes = blueToRed.clone();
     blueSlopes.setTo(0,blueSlopes < 1+eThreshold);
     redSlopes = redToBlue.clone();

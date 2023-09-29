@@ -130,12 +130,12 @@ int main(int argc, char** argv)
     Mat bgr[3];   // Frame destination array
     float resizeParam = 1; // Resize Parameter
 
-    VideoCapture cap(1, CAP_V4L2);
+    VideoCapture cap(2, CAP_V4L2);
     cap.set(cv::CAP_PROP_FOURCC, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'));     // More fps less resolution (at least for my setup)
     cap.set(cv::CAP_PROP_FRAME_WIDTH, 960);  // Set Frame Width
     cap.set(cv::CAP_PROP_FRAME_HEIGHT, 720); // Set Frame Height
-    cap.set(cv::CAP_PROP_AUTO_EXPOSURE, 3);  // Enable Auto Exposure
-    cap.set(cv::CAP_PROP_AUTO_EXPOSURE, 1);  // Disable Auto Exposure
+    cap.set(cv::CAP_PROP_AUTO_EXPOSURE, 0.25);  // Enable Auto Exposure
+    // cap.set(cv::CAP_PROP_AUTO_EXPOSURE, 1);  // Disable Auto Exposure
     cap.set(cv::CAP_PROP_AUTO_WB, 0.0);   // Disable automatic white balance 
     double capfps = cap.get(CAP_PROP_FPS);
     cap.read(Purple);
