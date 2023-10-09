@@ -95,21 +95,21 @@ void simulateObjectv2(Mat blueToRed, Mat redToBlue)
     Mat line,final,tmp,obj,blueSlopes,redSlopes,slopes;
     double minVal, maxVal;
     float eThreshold = 0.05;
-    float pixelDepth = 1.2; // mm pixel depth
+    float pixelDepth = 0.37; // mm pixel depth
     blueSlopes = blueToRed.clone();
     blueSlopes.setTo(0,blueSlopes < 1+eThreshold);
     redSlopes = redToBlue.clone();
     redSlopes.setTo(0,redSlopes < 1+eThreshold);
     add(blueSlopes,redSlopes,slopes);
 
-    imshow("Slopes",slopes);
+    // imshow("Slopes",slopes);
 
     inRange(blueToRed,1-eThreshold,1+eThreshold,tmp);
     blueToRed.setTo(1,blueToRed > 1+eThreshold);
     blueToRed.setTo(-1,blueToRed < 1-eThreshold);
     blueToRed.setTo(0,tmp);
 
-    imshow("Blue Test",blueToRed);
+    // imshow("Blue Test",blueToRed);
     // cout << "Blue Test = " << endl << " "  << blueToRed << endl << endl;
     // cout << "Red Test = " << endl << " "  << redToBlue << endl << endl;
     // cout << "slopes = " << endl << " "  << slopes << endl << endl;
