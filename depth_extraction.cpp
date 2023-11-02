@@ -37,7 +37,7 @@ cv::Mat ProcessImage(const cv::Mat& lambda, double t1, double L, double e, cv::M
 int main() {
     //First part
     // Load the input image from 'output_0001.png'
-    cv::Mat input_image = cv::imread("../Images_3/image-0001.png");
+    cv::Mat input_image = cv::imread("../dataset/Images_3/image-0001.png");
     int zei = 1;
     cv::resize(input_image, input_image, input_image.size()/zei);
 
@@ -60,7 +60,7 @@ int main() {
     cv::divide(1.0, I_bn, I_bn);
 
     // Load the second image 'output_0100.png'
-    cv::Mat input_image_2 = cv::imread("../Images_3/image-0400.png");
+    cv::Mat input_image_2 = cv::imread("../dataset/Images_3/image-0400.png");
     cv::resize(input_image_2, input_image_2, input_image_2.size()/zei);
     input_image_2.convertTo(input_image_2, CV_64FC3);
 
@@ -76,10 +76,11 @@ int main() {
     cv::Mat slope_detected = cv::Mat::zeros(input_image.size(), CV_8U);  // false(size(lambda))
     cv::Mat temp_slope_detected = cv::Mat::zeros(input_image.size(), CV_8U);  // false(size(lambda))
     std::vector<double> mean_lambda_line(num_rows, 0);  // Initialize vector for storing line-by-line means
+
     // Given camera intrinsic parameters:
-    double focal_length = 3.79;  // in mm
-    double sensor_width_mm = 3.56;  // in mm
-    int image_width_pixels = 1600;
+    double focal_length = 1.53903578e+03*2.5e-03;  // in mm
+    double sensor_width_mm = 22;  // in mm
+    int image_width_pixels = input_image.cols;
 
     // Calculate object size of one pixel using equation (3.7)
     double objectSize_pixel = sensor_width_mm / image_width_pixels; // Size of one pixel in mm
@@ -104,7 +105,7 @@ int main() {
     cv::divide(I_n1, I_n2, gradient_image);
 
     // Apply a 5x5 Gaussian filter to the gradient image
-    //cv::GaussianBlur(gradient_image, gradient_image, cv::Size(5, 5), 2);
+    cv::GaussianBlur(gradient_image, gradient_image, cv::Size(5, 5), 2);
 
     // lambda is equivalent to gradient_image in this context
     cv::Mat& lambda = gradient_image;
@@ -139,6 +140,7 @@ int main() {
     ProcessImage(inverse_lambda, t1, L, e, slope_detected, mean_lambda_line);
 
     slope_detected = (255 - slope_detected) | (255 - temp_slope_detected);
+    cv::imshow("slope_detected", slope_detected);
 
     // Calculate depth for each pixel in the lambda image
     depth_pixel = inverse_lambda * objectSize_pixel;  // Ensure objectSize_pixel is of type float or double
@@ -161,19 +163,53 @@ int main() {
                 accumulate_flag = false;
             }
 
-            if (slope_detected.at<uchar>(row, col) == 0 && accumulate_flag)  // Assuming slope_detected is a binary image
+            if (slope_detected.at<uchar>(row, col) == 255 && accumulate_flag)  // Assuming slope_detected is a binary image
             {
                 depth_map.at<double>(row, col) = depth_map.at<double>(row, col+1) + depth_pixel.at<double>(row, col);  // Adjust the data type 'float' if your depth_map or depth_pixel has a different type
             }
         }
     }
 
-
-    /*std::cout<<depth_map<<std::endl;
-    std::cout<<slope_detected<<std::endl;*/
-
     double duration = (cv::getTickCount() - start) / cv::getTickFrequency();
     std::cout << "Time taken: " << 1/duration << " FPS" << std::endl;
+
+    // Find the minimum and maximum values in the depth map
+    double min_val, max_val;
+    cv::Point min_loc, max_loc;
+    cv::minMaxLoc(depth_map, &min_val, &max_val, &min_loc, &max_loc);
+
+    // Print the maximum value
+    std::cout << "Maximum depth value: " << max_val << std::endl;
+
+    // Create the X, Y meshgrid (just like MATLAB's meshgrid)
+    cv::Mat X = cv::Mat::zeros(depth_map.size(), CV_64F);
+    cv::Mat Y = cv::Mat::zeros(depth_map.size(), CV_64F);
+    for(int i = 0; i < depth_map.rows; i++) {
+        for(int j = 0; j < depth_map.cols; j++) {
+            X.at<double>(i,j) = static_cast<double>(j);
+            Y.at<double>(i,j) = static_cast<double>(i);
+        }
+    }
+
+    // Convert X, Y, depth_map to point cloud
+    std::vector<cv::Point3f> points;
+    for(int i = 0; i < depth_map.rows; i++) {
+        for(int j = 0; j < depth_map.cols; j++) {
+            double depth_value = -depth_map.at<double>(i, j)*50; // Ensure this matches the data type of your depth map
+            points.push_back(cv::Point3f(X.at<double>(i,j), Y.at<double>(i,j), depth_value));
+        }
+    }
+
+    // Create a viz window
+    cv::viz::Viz3d window("3D Depth Map Visualization");
+    window.setBackgroundColor(cv::viz::Color::white());
+
+    // Display the point cloud in the viz window
+    cv::viz::WCloud cloud_widget(points, cv::viz::Color::blue());
+    window.showWidget("Point Cloud", cloud_widget);
+
+    // Spin and show the viz window
+    window.spin();
 
     cv::imshow("depth_map", depth_map);
     cv::waitKey(0);
