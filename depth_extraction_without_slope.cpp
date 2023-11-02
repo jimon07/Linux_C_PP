@@ -181,7 +181,6 @@ int main() {
     // Inverse of gradient_image
     cv::Mat& inverse_gradient_image = inverse_lambda;
 
-    std::cout<<cv::getThreadNum()<<std::endl;
     // Depth accumulation - right to left
     cv::parallel_for_(cv::Range(0, num_rows), ParallelProcess(inverse_lambda, slope_detected, depth_map, depth_pixel, num_cols));
     /*for (int row = 0; row < num_rows; ++row) {
