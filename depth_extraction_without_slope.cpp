@@ -2,6 +2,81 @@
 #include <iostream>
 #include <vector>
 
+class ParallelProcess : public cv::ParallelLoopBody
+{
+private:
+    const cv::Mat& inverse_lambda;
+    const cv::Mat& slope_detected;
+    cv::Mat& depth_map;
+    const cv::Mat& depth_pixel;
+    int num_cols;
+
+public:
+    ParallelProcess(const cv::Mat& _inverse_lambda, 
+                    const cv::Mat& _slope_detected, 
+                    cv::Mat& _depth_map, 
+                    const cv::Mat& _depth_pixel, 
+                    int _num_cols)
+        : inverse_lambda(_inverse_lambda), 
+          slope_detected(_slope_detected), 
+          depth_map(_depth_map), 
+          depth_pixel(_depth_pixel), 
+          num_cols(_num_cols) {}
+
+    virtual void operator() (const cv::Range& range) const CV_OVERRIDE
+    {
+        for (int row = range.start; row < range.end; ++row)
+        {
+            for (int col = num_cols - 2; col >= 0; --col)
+            {
+                if (inverse_lambda.at<double>(row, col) > 1.1 && slope_detected.at<uchar>(row, col) == 255)
+                {
+                    depth_map.at<double>(row, col) = depth_map.at<double>(row, col+1) + depth_pixel.at<double>(row, col);
+                }
+            }
+        }
+    }
+};
+
+
+class ParallelProcessLeftToRight : public cv::ParallelLoopBody
+{
+private:
+    const cv::Mat& gradient_image;
+    const cv::Mat& slope_detected;
+    cv::Mat& depth_map;
+    const cv::Mat& depth_pixel;
+    int num_cols;
+
+public:
+    ParallelProcessLeftToRight(const cv::Mat& _gradient_image, 
+                               const cv::Mat& _slope_detected, 
+                               cv::Mat& _depth_map, 
+                               const cv::Mat& _depth_pixel, 
+                               int _num_cols)
+        : gradient_image(_gradient_image), 
+          slope_detected(_slope_detected), 
+          depth_map(_depth_map), 
+          depth_pixel(_depth_pixel), 
+          num_cols(_num_cols) {}
+
+    virtual void operator() (const cv::Range& range) const CV_OVERRIDE
+    {
+        for (int row = range.start; row < range.end; ++row)
+        {
+            for (int col = 1; col < num_cols; ++col)
+            {
+                if (gradient_image.at<double>(row, col) > 1.1 && slope_detected.at<uchar>(row, col) == 0)
+                {
+                    depth_map.at<double>(row, col) = depth_map.at<double>(row, col-1) + depth_pixel.at<double>(row, col);
+                }
+            }
+        }
+    }
+};
+
+
+
 int main() {
     //First part
     // Load the input image from 'output_0001.png'
@@ -33,6 +108,7 @@ int main() {
     input_image_2.convertTo(input_image_2, CV_64FC3);
 
     //Define constants
+    cv::setNumThreads(4);
     // Get the number of rows (lines) in the image
     int num_rows = input_image.rows;
     int num_cols = input_image.cols;
@@ -73,11 +149,10 @@ int main() {
     cv::divide(I_n1, I_n2, gradient_image);
 
     // Apply a 5x5 Gaussian filter to the gradient image
-    cv::GaussianBlur(gradient_image, gradient_image, cv::Size(5, 5), 2);
+    //cv::GaussianBlur(gradient_image, gradient_image, cv::Size(5, 5), 2);
 
     // lambda is equivalent to gradient_image in this context
     cv::Mat& lambda = gradient_image;
-    //ProcessImage(lambda, t1, L, e, temp_slope_detected, mean_lambda_line);
 
     // Calculate depth for each pixel in the lambda image
     cv::Mat depth_pixel;
@@ -86,29 +161,19 @@ int main() {
     // Process the image in two directions, left to right and right to left
 
     // Depth accumulation - left to right
-    for (int row = 0; row < num_rows; ++row)
-    {
-        for (int col = 1; col < num_cols; ++col)
-        {
-            bool accumulate_flag = false;
-            if (gradient_image.at<double>(row, col) > 1.1)  // Adjust the data type 'float' if your gradient_image has a different type
-            {
-                accumulate_flag = true;
-            }
-
-            if (slope_detected.at<uchar>(row, col) == 0 && accumulate_flag)  // Assuming slope_detected is a binary image
-            {
+    cv::parallel_for_(cv::Range(0, num_rows), ParallelProcessLeftToRight(gradient_image, slope_detected, depth_map, depth_pixel, num_cols));
+    /*for (int row = 0; row < num_rows; ++row) {
+        for (int col = 1; col < num_cols; ++col) {
+            if (gradient_image.at<double>(row, col) > 1.1 && slope_detected.at<uchar>(row, col) == 0) {
                 depth_map.at<double>(row, col) = depth_map.at<double>(row, col-1) + depth_pixel.at<double>(row, col);  // Adjust the data type 'float' if your depth_map or depth_pixel has a different type
             }
         }
-    }
+    }*/
 
     // Inverse of lambda
     cv::Mat inverse_lambda = 1.0 / lambda;
-    //ProcessImage(inverse_lambda, t1, L, e, slope_detected, mean_lambda_line);
 
     slope_detected = (255 - slope_detected) | (255 - temp_slope_detected);
-    cv::imshow("slope_detected", slope_detected);
 
     // Calculate depth for each pixel in the lambda image
     depth_pixel = inverse_lambda * objectSize_pixel;  // Ensure objectSize_pixel is of type float or double
@@ -116,27 +181,16 @@ int main() {
     // Inverse of gradient_image
     cv::Mat& inverse_gradient_image = inverse_lambda;
 
+    std::cout<<cv::getThreadNum()<<std::endl;
     // Depth accumulation - right to left
-    for (int row = 0; row < num_rows; ++row)
-    {
-        bool accumulate_flag = false;  // Initialize the flag as false
-        for (int col = num_cols - 2; col >= 0; --col)
-        {
-            if (inverse_gradient_image.at<double>(row, col) > 1.1)  // Adjust the data type 'float' if your gradient_image has a different type
-            {
-                accumulate_flag = true;
-            }
-            else
-            {
-                accumulate_flag = false;
-            }
-
-            if (slope_detected.at<uchar>(row, col) == 255 && accumulate_flag)  // Assuming slope_detected is a binary image
-            {
-                depth_map.at<double>(row, col) = depth_map.at<double>(row, col+1) + depth_pixel.at<double>(row, col);  // Adjust the data type 'float' if your depth_map or depth_pixel has a different type
+    cv::parallel_for_(cv::Range(0, num_rows), ParallelProcess(inverse_lambda, slope_detected, depth_map, depth_pixel, num_cols));
+    /*for (int row = 0; row < num_rows; ++row) {
+        for (int col = num_cols - 2; col >= 0; --col) {
+            if (inverse_lambda.at<double>(row, col) > 1.1 && slope_detected.at<uchar>(row, col) == 255) {
+                depth_map.at<double>(row, col) = depth_map.at<double>(row, col+1) + depth_pixel.at<double>(row, col);
             }
         }
-    }
+    }*/
 
     double duration = (cv::getTickCount() - start) / cv::getTickFrequency();
     std::cout << "Time taken: " << 1/duration << " FPS" << std::endl;
