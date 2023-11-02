@@ -204,7 +204,7 @@ int main() {
     std::cout << "Maximum depth value: " << max_val << std::endl;
 
     // Create the X, Y meshgrid (just like MATLAB's meshgrid)
-    cv::Mat X = cv::Mat::zeros(depth_map.size(), CV_64F);
+    /*cv::Mat X = cv::Mat::zeros(depth_map.size(), CV_64F);
     cv::Mat Y = cv::Mat::zeros(depth_map.size(), CV_64F);
     for(int i = 0; i < depth_map.rows; i++) {
         for(int j = 0; j < depth_map.cols; j++) {
@@ -234,7 +234,7 @@ int main() {
     window.spin();
 
     cv::imshow("depth_map", depth_map);
-    cv::waitKey(0);
+    cv::waitKey(0);*/
 
     return 0;
 }
