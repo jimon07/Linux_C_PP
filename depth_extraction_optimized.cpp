@@ -75,34 +75,55 @@ public:
     }
 };
 
+class ParallelProcessScopeComputation : public cv::ParallelLoopBody
+{
+private:
+    const cv::Mat& lambda;
+    cv::Mat& slope_detected;
+    double t1, L, e;
 
-cv::Mat ProcessImage(const cv::Mat& lambda, double t1, double L, double e, cv::Mat& slope_detected, std::vector<double>& mean_lambda_line) {
+public:
+    ParallelProcessScopeComputation (const cv::Mat& lambda_, double t1_, double L_, double e_, cv::Mat& slope_detected_)
+        : lambda(lambda_), t1(t1_), L(L_), e(e_), slope_detected(slope_detected_)
+    {}
 
-    for (int row = 0; row < lambda.rows; ++row) {
-        cv::Mat line_lambda = lambda.row(row);
+    virtual void operator()(const cv::Range& range) const
+    {
+        for (int row = range.start; row < range.end; ++row)
+        {
+            cv::Mat line_lambda = lambda.row(row);
 
-        cv::Mat initial_mask = (line_lambda > (cv::mean(line_lambda)[0] - t1)) & (line_lambda < (cv::mean(line_lambda)[0] + t1));
-        cv::Mat initial_valid_values;
-        line_lambda.copyTo(initial_valid_values, initial_mask);
-        
-        double initial_mean = initial_valid_values.empty() ? 0 : cv::mean(initial_valid_values)[0];
+            double line_mean = cv::mean(line_lambda)[0];
+            double lower_bound_1 = line_mean - t1;
+            double upper_bound_1 = line_mean + t1;
 
-        double t3 = initial_mean - L;
-        double t4 = initial_mean + L;
+            cv::Mat initial_mask = (line_lambda > lower_bound_1) & (line_lambda < upper_bound_1);
+            cv::Mat initial_valid_values;
+            line_lambda.copyTo(initial_valid_values, initial_mask);
 
-        cv::Mat final_mask = (line_lambda > t3) & (line_lambda < t4);
+            double initial_mean = initial_valid_values.empty() ? 0 : cv::mean(initial_valid_values)[0];
+            double t3 = initial_mean - L;
+            double t4 = initial_mean + L;
 
-        cv::Mat final_valid_values;
-        line_lambda.copyTo(final_valid_values, final_mask);
-        
-        double final_mean = final_valid_values.empty() ? 0 : cv::mean(final_valid_values)[0];
+            cv::Mat final_mask = (line_lambda > t3) & (line_lambda < t4);
+            cv::Mat final_valid_values;
+            line_lambda.copyTo(final_valid_values, final_mask);
 
-        double t_l = final_mean - e;
-        double t_u = final_mean + e;
+            double final_mean = final_valid_values.empty() ? 0 : cv::mean(final_valid_values)[0];
 
-        cv::Mat current_slope = (line_lambda > t_l) & (line_lambda < t_u);
-        current_slope.copyTo(slope_detected.row(row));
+            double t_l = final_mean - e;
+            double t_u = final_mean + e;
+
+            cv::Mat current_slope = (line_lambda > t_l) & (line_lambda < t_u);
+            current_slope.copyTo(slope_detected.row(row));
+        }
     }
+};
+
+cv::Mat ProcessImage(const cv::Mat& lambda, double t1, double L, double e, cv::Mat& slope_detected)
+{
+    ParallelProcessScopeComputation parallelProcess(lambda, t1, L, e, slope_detected);
+    cv::parallel_for_(cv::Range(0, lambda.rows), parallelProcess);
 
     return slope_detected;
 }
@@ -111,8 +132,6 @@ int main() {
     //First part
     // Load the input image from 'output_0001.png'
     cv::Mat input_image = cv::imread("../dataset/Images_3/image-0001.png");
-    int zei = 1;
-    cv::resize(input_image, input_image, input_image.size()/zei);
 
     // Split the image into its RGB channels
     std::vector<cv::Mat> channels(3);
@@ -134,11 +153,10 @@ int main() {
 
     // Load the second image 'output_0100.png'
     cv::Mat input_image_2 = cv::imread("../dataset/Images_3/image-0400.png");
-    cv::resize(input_image_2, input_image_2, input_image_2.size()/zei);
     input_image_2.convertTo(input_image_2, CV_64FC3);
 
     //Define constants
-    cv::setNumThreads(4);
+    cv::setNumThreads(24);
     // Get the number of rows (lines) in the image
     int num_rows = input_image.rows;
     int num_cols = input_image.cols;
@@ -161,70 +179,73 @@ int main() {
     // Initializing depth_map to zeros with the same size as lambda
     cv::Mat depth_map = cv::Mat::zeros(input_image.size(),CV_64F);
 
-    int64 start = cv::getTickCount();  // Start the timer
-    //Second part
-    // Split the second image into its RGB channels
-    std::vector<cv::Mat> channels2(3);
-    cv::split(input_image_2, channels2);
-    cv::Mat& R2 = channels2[2];
-    cv::Mat& B2 = channels2[0];
+    for(int iteration = 0; iteration<1000; iteration++)
+    {
+        int64 start = cv::getTickCount();  // Start the timer
+        //Second part
+        // Split the second image into its RGB channels
+        std::vector<cv::Mat> channels2(3);
+        cv::split(input_image_2, channels2);
+        cv::Mat& R2 = channels2[2];
+        cv::Mat& B2 = channels2[0];
 
-    // Calculate normalized images using the second image channels
-    cv::Mat I_n1, I_n2;
-    cv::divide(R2, I_bn, I_n1);
-    cv::divide(B2, I_rn, I_n2);
+        // Calculate normalized images using the second image channels
+        cv::Mat I_n1, I_n2;
+        cv::divide(R2, I_bn, I_n1);
+        cv::divide(B2, I_rn, I_n2);
 
-    // Calculate the gradient of the image as the ratio of I_n2 to I_n1
-    cv::Mat gradient_image;
-    cv::divide(I_n1, I_n2, gradient_image);
+        // Calculate the gradient of the image as the ratio of I_n2 to I_n1
+        cv::Mat gradient_image;
+        cv::divide(I_n1, I_n2, gradient_image);
 
-    // Apply a 5x5 Gaussian filter to the gradient image
-    //cv::GaussianBlur(gradient_image, gradient_image, cv::Size(5, 5), 2);
+        // Apply a 5x5 Gaussian filter to the gradient image
+        //cv::GaussianBlur(gradient_image, gradient_image, cv::Size(5, 5), 2);
 
-    // lambda is equivalent to gradient_image in this context
-    cv::Mat& lambda = gradient_image;
-    ProcessImage(lambda, t1, L, e, temp_slope_detected, mean_lambda_line);
+        // lambda is equivalent to gradient_image in this context
+        cv::Mat& lambda = gradient_image;
+        ProcessImage(lambda, t1, L, e, temp_slope_detected);
 
-    // Calculate depth for each pixel in the lambda image
-    cv::Mat depth_pixel;
-    depth_pixel = lambda * objectSize_pixel;
+        // Calculate depth for each pixel in the lambda image
+        cv::Mat depth_pixel;
+        depth_pixel = lambda * objectSize_pixel;
 
-    // Process the image in two directions, left to right and right to left
+        // Process the image in two directions, left to right and right to left
 
-    // Depth accumulation - left to right
-    cv::parallel_for_(cv::Range(0, num_rows), ParallelProcessLeftToRight(gradient_image, slope_detected, depth_map, depth_pixel, num_cols));
-    /*for (int row = 0; row < num_rows; ++row) {
-        for (int col = 1; col < num_cols; ++col) {
-            if (gradient_image.at<double>(row, col) > 1.1 && slope_detected.at<uchar>(row, col) == 0) {
-                depth_map.at<double>(row, col) = depth_map.at<double>(row, col-1) + depth_pixel.at<double>(row, col);  // Adjust the data type 'float' if your depth_map or depth_pixel has a different type
+        // Depth accumulation - left to right
+        cv::parallel_for_(cv::Range(0, num_rows), ParallelProcessLeftToRight(gradient_image, slope_detected, depth_map, depth_pixel, num_cols));
+        /*for (int row = 0; row < num_rows; ++row) {
+            for (int col = 1; col < num_cols; ++col) {
+                if (gradient_image.at<double>(row, col) > 1.1 && slope_detected.at<uchar>(row, col) == 0) {
+                    depth_map.at<double>(row, col) = depth_map.at<double>(row, col-1) + depth_pixel.at<double>(row, col);  // Adjust the data type 'float' if your depth_map or depth_pixel has a different type
+                }
             }
-        }
-    }*/
+        }*/
 
-    // Inverse of lambda
-    cv::Mat inverse_lambda = 1.0 / lambda;
-    ProcessImage(inverse_lambda, t1, L, e, slope_detected, mean_lambda_line);
+        // Inverse of lambda
+        cv::Mat inverse_lambda = 1.0 / lambda;
+        ProcessImage(inverse_lambda, t1, L, e, slope_detected);
 
-    slope_detected = (255 - slope_detected) | (255 - temp_slope_detected);
+        slope_detected = (255 - slope_detected) | (255 - temp_slope_detected);
 
-    // Calculate depth for each pixel in the lambda image
-    depth_pixel = inverse_lambda * objectSize_pixel;  // Ensure objectSize_pixel is of type float or double
+        // Calculate depth for each pixel in the lambda image
+        depth_pixel = inverse_lambda * objectSize_pixel;  // Ensure objectSize_pixel is of type float or double
 
-    // Inverse of gradient_image
-    cv::Mat& inverse_gradient_image = inverse_lambda;
+        // Inverse of gradient_image
+        cv::Mat& inverse_gradient_image = inverse_lambda;
 
-    // Depth accumulation - right to left
-    cv::parallel_for_(cv::Range(0, num_rows), ParallelProcess(inverse_lambda, slope_detected, depth_map, depth_pixel, num_cols));
-    /*for (int row = 0; row < num_rows; ++row) {
-        for (int col = num_cols - 2; col >= 0; --col) {
-            if (inverse_lambda.at<double>(row, col) > 1.1 && slope_detected.at<uchar>(row, col) == 255) {
-                depth_map.at<double>(row, col) = depth_map.at<double>(row, col+1) + depth_pixel.at<double>(row, col);
+        // Depth accumulation - right to left
+        cv::parallel_for_(cv::Range(0, num_rows), ParallelProcess(inverse_lambda, slope_detected, depth_map, depth_pixel, num_cols));
+        /*for (int row = 0; row < num_rows; ++row) {
+            for (int col = num_cols - 2; col >= 0; --col) {
+                if (inverse_lambda.at<double>(row, col) > 1.1 && slope_detected.at<uchar>(row, col) == 255) {
+                    depth_map.at<double>(row, col) = depth_map.at<double>(row, col+1) + depth_pixel.at<double>(row, col);
+                }
             }
-        }
-    }*/
+        }*/
 
-    double duration = (cv::getTickCount() - start) / cv::getTickFrequency();
-    std::cout << "Time taken: " << 1/duration << " FPS" << std::endl;
+        double duration = (cv::getTickCount() - start) / cv::getTickFrequency();
+        std::cout << "Time taken: " << 1/duration << " FPS" << std::endl;
+    }
 
     // Find the minimum and maximum values in the depth map
     double min_val, max_val;
