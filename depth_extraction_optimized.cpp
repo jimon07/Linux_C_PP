@@ -1,6 +1,7 @@
 #include <opencv2/opencv.hpp>
 #include <iostream>
 #include <vector>
+#include <opencv2/viz.hpp>
 
 class ParallelProcess : public cv::ParallelLoopBody
 {
