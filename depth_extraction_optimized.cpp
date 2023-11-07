@@ -131,7 +131,6 @@ cv::Mat ProcessImage(const cv::Mat& lambda, double t1, double L, double e, cv::M
 
 int main() {
     //First part
-    // Load the input image from 'output_0001.png'
     cv::Mat input_image = cv::imread("../dataset/Images_3/image-0001.png");
 
     // Split the image into its RGB channels
@@ -152,12 +151,11 @@ int main() {
     cv::divide(1.0, I_rn, I_rn);
     cv::divide(1.0, I_bn, I_bn);
 
-    // Load the second image 'output_0100.png'
     cv::Mat input_image_2 = cv::imread("../dataset/Images_3/image-0400.png");
     input_image_2.convertTo(input_image_2, CV_64FC3);
 
     //Define constants
-    cv::setNumThreads(24);
+    cv::setNumThreads(4);
     // Get the number of rows (lines) in the image
     int num_rows = input_image.rows;
     int num_cols = input_image.cols;
@@ -180,73 +178,70 @@ int main() {
     // Initializing depth_map to zeros with the same size as lambda
     cv::Mat depth_map = cv::Mat::zeros(input_image.size(),CV_64F);
 
-    for(int iteration = 0; iteration<10; iteration++)
-    {
-        int64 start = cv::getTickCount();  // Start the timer
-        //Second part
-        // Split the second image into its RGB channels
-        std::vector<cv::Mat> channels2(3);
-        cv::split(input_image_2, channels2);
-        cv::Mat& R2 = channels2[2];
-        cv::Mat& B2 = channels2[0];
+    int64 start = cv::getTickCount();  // Start the timer
+    //Second part
+    // Split the second image into its RGB channels
+    std::vector<cv::Mat> channels2(3);
+    cv::split(input_image_2, channels2);
+    cv::Mat& R2 = channels2[2];
+    cv::Mat& B2 = channels2[0];
 
-        // Calculate normalized images using the second image channels
-        cv::Mat I_n1, I_n2;
-        cv::divide(R2, I_bn, I_n1);
-        cv::divide(B2, I_rn, I_n2);
+    // Calculate normalized images using the second image channels
+    cv::Mat I_n1, I_n2;
+    cv::divide(R2, I_bn, I_n1);
+    cv::divide(B2, I_rn, I_n2);
 
-        // Calculate the gradient of the image as the ratio of I_n2 to I_n1
-        cv::Mat gradient_image;
-        cv::divide(I_n1, I_n2, gradient_image);
+    // Calculate the gradient of the image as the ratio of I_n2 to I_n1
+    cv::Mat gradient_image;
+    cv::divide(I_n1, I_n2, gradient_image);
 
-        // Apply a 5x5 Gaussian filter to the gradient image
-        //cv::GaussianBlur(gradient_image, gradient_image, cv::Size(5, 5), 2);
+    // Apply a 5x5 Gaussian filter to the gradient image
+    //cv::GaussianBlur(gradient_image, gradient_image, cv::Size(5, 5), 2);
 
-        // lambda is equivalent to gradient_image in this context
-        cv::Mat& lambda = gradient_image;
-        ProcessImage(lambda, t1, L, e, temp_slope_detected);
+    // lambda is equivalent to gradient_image in this context
+    cv::Mat& lambda = gradient_image;
+    ProcessImage(lambda, t1, L, e, temp_slope_detected);
 
-        // Calculate depth for each pixel in the lambda image
-        cv::Mat depth_pixel;
-        depth_pixel = lambda * objectSize_pixel;
+    // Calculate depth for each pixel in the lambda image
+    cv::Mat depth_pixel;
+    depth_pixel = lambda * objectSize_pixel;
 
-        // Process the image in two directions, left to right and right to left
+    // Process the image in two directions, left to right and right to left
 
-        // Depth accumulation - left to right
-        cv::parallel_for_(cv::Range(0, num_rows), ParallelProcessLeftToRight(gradient_image, slope_detected, depth_map, depth_pixel, num_cols));
-        /*for (int row = 0; row < num_rows; ++row) {
-            for (int col = 1; col < num_cols; ++col) {
-                if (gradient_image.at<double>(row, col) > 1.1 && slope_detected.at<uchar>(row, col) == 0) {
-                    depth_map.at<double>(row, col) = depth_map.at<double>(row, col-1) + depth_pixel.at<double>(row, col);  // Adjust the data type 'float' if your depth_map or depth_pixel has a different type
-                }
+    // Depth accumulation - left to right
+    cv::parallel_for_(cv::Range(0, num_rows), ParallelProcessLeftToRight(gradient_image, slope_detected, depth_map, depth_pixel, num_cols));
+    /*for (int row = 0; row < num_rows; ++row) {
+        for (int col = 1; col < num_cols; ++col) {
+            if (gradient_image.at<double>(row, col) > 1.1 && slope_detected.at<uchar>(row, col) == 0) {
+                depth_map.at<double>(row, col) = depth_map.at<double>(row, col-1) + depth_pixel.at<double>(row, col);  // Adjust the data type 'float' if your depth_map or depth_pixel has a different type
             }
-        }*/
+        }
+    }*/
 
-        // Inverse of lambda
-        cv::Mat inverse_lambda = 1.0 / lambda;
-        ProcessImage(inverse_lambda, t1, L, e, slope_detected);
+    // Inverse of lambda
+    cv::Mat inverse_lambda = 1.0 / lambda;
+    ProcessImage(inverse_lambda, t1, L, e, slope_detected);
 
-        slope_detected = (255 - slope_detected) | (255 - temp_slope_detected);
+    slope_detected = (255 - slope_detected) | (255 - temp_slope_detected);
 
-        // Calculate depth for each pixel in the lambda image
-        depth_pixel = inverse_lambda * objectSize_pixel;  // Ensure objectSize_pixel is of type float or double
+    // Calculate depth for each pixel in the lambda image
+    depth_pixel = inverse_lambda * objectSize_pixel;  // Ensure objectSize_pixel is of type float or double
 
-        // Inverse of gradient_image
-        cv::Mat& inverse_gradient_image = inverse_lambda;
+    // Inverse of gradient_image
+    cv::Mat& inverse_gradient_image = inverse_lambda;
 
-        // Depth accumulation - right to left
-        cv::parallel_for_(cv::Range(0, num_rows), ParallelProcess(inverse_lambda, slope_detected, depth_map, depth_pixel, num_cols));
-        /*for (int row = 0; row < num_rows; ++row) {
-            for (int col = num_cols - 2; col >= 0; --col) {
-                if (inverse_lambda.at<double>(row, col) > 1.1 && slope_detected.at<uchar>(row, col) == 255) {
-                    depth_map.at<double>(row, col) = depth_map.at<double>(row, col+1) + depth_pixel.at<double>(row, col);
-                }
+    // Depth accumulation - right to left
+    cv::parallel_for_(cv::Range(0, num_rows), ParallelProcess(inverse_lambda, slope_detected, depth_map, depth_pixel, num_cols));
+    /*for (int row = 0; row < num_rows; ++row) {
+        for (int col = num_cols - 2; col >= 0; --col) {
+            if (inverse_lambda.at<double>(row, col) > 1.1 && slope_detected.at<uchar>(row, col) == 255) {
+                depth_map.at<double>(row, col) = depth_map.at<double>(row, col+1) + depth_pixel.at<double>(row, col);
             }
-        }*/
+        }
+    }*/
 
-        double duration = (cv::getTickCount() - start) / cv::getTickFrequency();
-        std::cout << "Time taken: " << 1/duration << " FPS" << std::endl;
-    }
+    double duration = (cv::getTickCount() - start) / cv::getTickFrequency();
+    std::cout << "Time taken: " << 1/duration << " FPS" << std::endl;
 
     // Find the minimum and maximum values in the depth map
     double min_val, max_val;
@@ -314,21 +309,36 @@ int main() {
         color_row.copyTo(scale_bar.row(i));
     }
 
+    cv::flip(scale_bar, scale_bar, 0);
+
     // Draw scale bar with scale
     int fontFace = cv::FONT_HERSHEY_SIMPLEX;
     double fontScale = 0.7;
     int thickness = 2;
     cv::Point textPosMin(1, scale_height - 15);
     cv::Point textPosMax(1, 20);
+    int textPosStep = scale_height / 5;
+    cv::Scalar colour = cv::Scalar(0, 0, 0);
 
     std::ostringstream minStream, maxStream;
-    minStream << std::fixed << std::setprecision(2) << max_val;
-    maxStream << std::fixed << std::setprecision(2) << min_val;
+    minStream << std::fixed << std::setprecision(2) << min_val;
+    maxStream << std::fixed << std::setprecision(2) << max_val;
     std::string minText = minStream.str();
     std::string maxText = maxStream.str();
 
-    cv::putText(scale_bar, minText, textPosMin, fontFace, fontScale, cv::Scalar(255,255,255), thickness);
-    cv::putText(scale_bar, maxText, textPosMax, fontFace, fontScale, cv::Scalar(255,255,255), thickness);
+    cv::putText(scale_bar, minText, textPosMin, fontFace, fontScale, colour, thickness);
+    cv::putText(scale_bar, maxText, textPosMax, fontFace, fontScale, colour, thickness);
+
+    for (int i = 1; i < 6; ++i) { // Draw 6 scale labels (including min and max)
+        double scale_val = min_val + (i / 5.0) * (max_val - min_val);
+        std::ostringstream scaleStream;
+        scaleStream << std::fixed << std::setprecision(2) << scale_val;
+        std::string scaleText = scaleStream.str();
+
+        cv::Point textPos(1, scale_height - i * textPosStep - 10);
+
+        cv::putText(scale_bar, scaleText, textPos, fontFace, fontScale, colour, thickness);
+    }
 
     cv::Mat combined_image;
     cv::hconcat(depth_heatmap, scale_bar, combined_image);
