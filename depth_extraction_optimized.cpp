@@ -292,7 +292,48 @@ int main() {
     cv::Mat depth_heatmap;
     cv::applyColorMap(normalized_depth_map, depth_heatmap, cv::COLORMAP_JET);
 
-    cv::imshow("Depth Heatmap", depth_heatmap);
+    int scale_height = depth_heatmap.rows;
+    int scale_width = 50; // Width of the scale bar
+    cv::Mat scale_bar(scale_height, scale_width, CV_8UC3);
+
+    // Create a gradient for the scale bar
+    for (int i = 0; i < scale_height; ++i) {
+        // Map the loop variable to 0-255 and create a color from the colormap
+        uchar value = static_cast<uchar>((255 * i) / scale_height);
+        cv::Mat single_color_row(1, 1, CV_8U, cv::Scalar(value));
+        
+        // Apply the colormap to the single pixel
+        cv::Mat colored_row;
+        cv::applyColorMap(single_color_row, colored_row, cv::COLORMAP_JET);
+        
+        // Repeat the colored pixel across the width of the scale bar
+        cv::Mat color_row;
+        cv::repeat(colored_row.reshape(3,1), 1, scale_width, color_row);
+        
+        // Assign the colored row to the correct position in the scale bar
+        color_row.copyTo(scale_bar.row(i));
+    }
+
+    // Draw scale bar with scale
+    int fontFace = cv::FONT_HERSHEY_SIMPLEX;
+    double fontScale = 0.7;
+    int thickness = 2;
+    cv::Point textPosMin(1, scale_height - 15);
+    cv::Point textPosMax(1, 20);
+
+    std::ostringstream minStream, maxStream;
+    minStream << std::fixed << std::setprecision(2) << max_val;
+    maxStream << std::fixed << std::setprecision(2) << min_val;
+    std::string minText = minStream.str();
+    std::string maxText = maxStream.str();
+
+    cv::putText(scale_bar, minText, textPosMin, fontFace, fontScale, cv::Scalar(255,255,255), thickness);
+    cv::putText(scale_bar, maxText, textPosMax, fontFace, fontScale, cv::Scalar(255,255,255), thickness);
+
+    cv::Mat combined_image;
+    cv::hconcat(depth_heatmap, scale_bar, combined_image);
+
+    cv::imshow("Depth Heatmap with Scale", combined_image);
     cv::waitKey(0);
 
     return 0;
