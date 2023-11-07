@@ -180,7 +180,7 @@ int main() {
     // Initializing depth_map to zeros with the same size as lambda
     cv::Mat depth_map = cv::Mat::zeros(input_image.size(),CV_64F);
 
-    for(int iteration = 0; iteration<1000; iteration++)
+    for(int iteration = 0; iteration<10; iteration++)
     {
         int64 start = cv::getTickCount();  // Start the timer
         //Second part
@@ -284,10 +284,16 @@ int main() {
     window.showWidget("Point Cloud", cloud_widget);
 
     // Spin and show the viz window
-    window.spin();
+    window.spin();*/
 
-    cv::imshow("depth_map", depth_map);
-    cv::waitKey(0);*/
+    cv::Mat normalized_depth_map;
+    cv::normalize(depth_map, normalized_depth_map, 0, 255, cv::NORM_MINMAX, CV_8U);
+
+    cv::Mat depth_heatmap;
+    cv::applyColorMap(normalized_depth_map, depth_heatmap, cv::COLORMAP_JET);
+
+    cv::imshow("Depth Heatmap", depth_heatmap);
+    cv::waitKey(0);
 
     return 0;
 }
