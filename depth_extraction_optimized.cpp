@@ -129,23 +129,29 @@ cv::Mat ProcessImage(const cv::Mat& lambda, double t1, double L, double e, cv::M
     return slope_detected;
 }
 
-void createDepthScaleBar(cv::Mat& depth_map, double min_val, double max_val) {
+void createDepthScaleBar(cv::Mat& depth_map, double actual_min_val, double actual_max_val) {
+    double fixed_min_val = -20.0; // Fixed minimum value for scale
+    double fixed_max_val = 20.0;  // Fixed maximum value for scale
 
-    // Shift depth map values if min_val is negative
-    cv::Mat shifted_depth_map;
-    if (min_val < 0) {
-        depth_map.convertTo(shifted_depth_map, CV_64F); // Convert to double for addition
-        shifted_depth_map += std::abs(min_val); // Shift values
-    } else {
-        shifted_depth_map = depth_map.clone();
-    }
+    // Clamp values in the depth map to the range of -20 to +20
+    cv::Mat extended_depth_map;
+    depth_map.convertTo(extended_depth_map, CV_64F); // Convert to double for operations
+    cv::threshold(depth_map, extended_depth_map, fixed_max_val, fixed_max_val, cv::THRESH_TRUNC); // Upper clamp
+    cv::threshold(depth_map, extended_depth_map, fixed_min_val, fixed_min_val, cv::THRESH_TOZERO); // Lower clamp
 
-    // Normalize shifted depth map
+    // Extend the depth map by adding rows/columns with -20 and +20
+    int rowsToAdd = 2; // Number of rows/columns to add
+    extended_depth_map.create(depth_map.rows + rowsToAdd, depth_map.cols, depth_map.type());
+    // Set the first and last added row/column to -20 and +20
+    extended_depth_map.row(0).setTo(cv::Scalar(fixed_min_val));
+    extended_depth_map.row(extended_depth_map.rows - 1).setTo(cv::Scalar(fixed_max_val));
+    depth_map.copyTo(extended_depth_map.rowRange(1, extended_depth_map.rows - 1));
+
+    // Normalize to the 0-255 range for coloring
     cv::Mat normalized_depth_map;
-    double new_max_val = max_val - min_val; // Adjust max value after shifting
-    cv::normalize(shifted_depth_map, normalized_depth_map, 0, 255, cv::NORM_MINMAX, CV_8U);
+    cv::normalize(extended_depth_map, normalized_depth_map, 0, 255, cv::NORM_MINMAX, CV_8U);
 
-    // Create heatmap
+    // Create heatmap from the normalized depth map
     cv::Mat depth_heatmap;
     cv::applyColorMap(normalized_depth_map, depth_heatmap, cv::COLORMAP_JET);
 
@@ -153,35 +159,43 @@ void createDepthScaleBar(cv::Mat& depth_map, double min_val, double max_val) {
     int scale_width = 60; // Width of the scale bar
     cv::Mat scale_bar(scale_height, scale_width, CV_8UC3);
 
-    // Create a gradient for the scale bar
+    // Create a gradient for the scale bar based on fixed range
     for (int i = 0; i < scale_height; ++i) {
-        uchar value = static_cast<uchar>((255 * i) / scale_height);
-        cv::Mat single_color_row(1, 1, CV_8U, cv::Scalar(value));
+        // Map the loop variable to -20 to 20
+        double scale_value = fixed_min_val + (static_cast<double>(i) / (scale_height - 1)) * (fixed_max_val - fixed_min_val);
+        
+        // Normalize the value to the 0-255 range for the colormap
+        // In this case, -20 should map to 0 and +20 to 255
+        uchar normalized_value = static_cast<uchar>(255.0 * (scale_value - fixed_min_val) / (fixed_max_val - fixed_min_val));
 
+        cv::Mat single_color_row(1, 1, CV_8U, cv::Scalar(normalized_value));
         cv::Mat colored_row;
         cv::applyColorMap(single_color_row, colored_row, cv::COLORMAP_JET);
-
         cv::Mat color_row;
         cv::repeat(colored_row.reshape(3,1), 1, scale_width, color_row);
-
         color_row.copyTo(scale_bar.row(i));
     }
 
     cv::flip(scale_bar, scale_bar, 0);
 
-    // Draw scale labels
+    // Draw scale labels for the fixed range
     int fontFace = cv::FONT_HERSHEY_SIMPLEX;
-    double fontScale = 0.6;
+    double fontScale = 0.5;
     int thickness = 2;
     cv::Scalar colour = cv::Scalar(0, 0, 0);
 
     for (int i = 0; i <= 5; ++i) {
-        double scale_val = min_val + (i / 5.0) * (max_val - min_val);
+        double scale_val = fixed_min_val + (i / 5.0) * (fixed_max_val - fixed_min_val);
         std::ostringstream scaleStream;
         scaleStream << std::fixed << std::setprecision(2) << scale_val;
         std::string scaleText = scaleStream.str();
 
-        int textPosVertical = scale_height - static_cast<int>((scale_val - min_val) / (max_val - min_val) * scale_height) - 10;
+        int textPosVertical;
+        if(i < 3)
+            textPosVertical = scale_height - static_cast<int>((scale_val - fixed_min_val) / (fixed_max_val - fixed_min_val) * scale_height) - 20;
+        else if(i >= 2)
+            textPosVertical = scale_height - static_cast<int>((scale_val - fixed_min_val) / (fixed_max_val - fixed_min_val) * scale_height) + 20;
+
         cv::Point textPos(1, textPosVertical);
         cv::putText(scale_bar, scaleText, textPos, fontFace, fontScale, colour, thickness);
     }
