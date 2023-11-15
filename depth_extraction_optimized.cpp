@@ -129,6 +129,71 @@ cv::Mat ProcessImage(const cv::Mat& lambda, double t1, double L, double e, cv::M
     return slope_detected;
 }
 
+void createDepthScaleBar(cv::Mat& depth_map, double min_val, double max_val) {
+
+    // Shift depth map values if min_val is negative
+    cv::Mat shifted_depth_map;
+    if (min_val < 0) {
+        depth_map.convertTo(shifted_depth_map, CV_64F); // Convert to double for addition
+        shifted_depth_map += std::abs(min_val); // Shift values
+    } else {
+        shifted_depth_map = depth_map.clone();
+    }
+
+    // Normalize shifted depth map
+    cv::Mat normalized_depth_map;
+    double new_max_val = max_val - min_val; // Adjust max value after shifting
+    cv::normalize(shifted_depth_map, normalized_depth_map, 0, 255, cv::NORM_MINMAX, CV_8U);
+
+    // Create heatmap
+    cv::Mat depth_heatmap;
+    cv::applyColorMap(normalized_depth_map, depth_heatmap, cv::COLORMAP_JET);
+
+    int scale_height = depth_heatmap.rows;
+    int scale_width = 60; // Width of the scale bar
+    cv::Mat scale_bar(scale_height, scale_width, CV_8UC3);
+
+    // Create a gradient for the scale bar
+    for (int i = 0; i < scale_height; ++i) {
+        uchar value = static_cast<uchar>((255 * i) / scale_height);
+        cv::Mat single_color_row(1, 1, CV_8U, cv::Scalar(value));
+
+        cv::Mat colored_row;
+        cv::applyColorMap(single_color_row, colored_row, cv::COLORMAP_JET);
+
+        cv::Mat color_row;
+        cv::repeat(colored_row.reshape(3,1), 1, scale_width, color_row);
+
+        color_row.copyTo(scale_bar.row(i));
+    }
+
+    cv::flip(scale_bar, scale_bar, 0);
+
+    // Draw scale labels
+    int fontFace = cv::FONT_HERSHEY_SIMPLEX;
+    double fontScale = 0.6;
+    int thickness = 2;
+    cv::Scalar colour = cv::Scalar(0, 0, 0);
+
+    for (int i = 0; i <= 5; ++i) {
+        double scale_val = min_val + (i / 5.0) * (max_val - min_val);
+        std::ostringstream scaleStream;
+        scaleStream << std::fixed << std::setprecision(2) << scale_val;
+        std::string scaleText = scaleStream.str();
+
+        int textPosVertical = scale_height - static_cast<int>((scale_val - min_val) / (max_val - min_val) * scale_height) - 10;
+        cv::Point textPos(1, textPosVertical);
+        cv::putText(scale_bar, scaleText, textPos, fontFace, fontScale, colour, thickness);
+    }
+
+    // Combine heatmap and scale bar
+    cv::Mat combined_image;
+    cv::hconcat(depth_heatmap, scale_bar, combined_image);
+
+    // Display the combined image
+    cv::imshow("Depth Heatmap with Scale Bar", combined_image);
+}
+
 int main() {
     //First part
     cv::Mat input_image = cv::imread("../dataset/Images_3/image-0001.png");
@@ -155,7 +220,8 @@ int main() {
     input_image_2.convertTo(input_image_2, CV_64FC3);*/
 
     cv::setNumThreads(4);
-    cv::VideoCapture capture(0);
+    //cv::VideoCapture capture(0);
+    cv::VideoCapture capture("../dataset/Images_3/image-0400.png");
     if (!capture.isOpened()) {
         std::cerr << "Error: Could not open webcam." << std::endl;
         return 1;
@@ -267,71 +333,10 @@ int main() {
 
         // Print the maximum value
         std::cout << "Maximum depth value: " << max_val << std::endl;
+        std::cout << "Minimum depth value: " << min_val << std::endl;
 
-
-        cv::Mat normalized_depth_map;
-        cv::normalize(depth_map, normalized_depth_map, 0, 255, cv::NORM_MINMAX, CV_8U);
-
-        cv::Mat depth_heatmap;
-        cv::applyColorMap(normalized_depth_map, depth_heatmap, cv::COLORMAP_JET);
-
-        int scale_height = depth_heatmap.rows;
-        int scale_width = 50; // Width of the scale bar
-        cv::Mat scale_bar(scale_height, scale_width, CV_8UC3);
-
-        // Create a gradient for the scale bar
-        for (int i = 0; i < scale_height; ++i) {
-            // Map the loop variable to 0-255 and create a color from the colormap
-            uchar value = static_cast<uchar>((255 * i) / scale_height);
-            cv::Mat single_color_row(1, 1, CV_8U, cv::Scalar(value));
-            
-            // Apply the colormap to the single pixel
-            cv::Mat colored_row;
-            cv::applyColorMap(single_color_row, colored_row, cv::COLORMAP_JET);
-            
-            // Repeat the colored pixel across the width of the scale bar
-            cv::Mat color_row;
-            cv::repeat(colored_row.reshape(3,1), 1, scale_width, color_row);
-            
-            // Assign the colored row to the correct position in the scale bar
-            color_row.copyTo(scale_bar.row(i));
-        }
-
-        cv::flip(scale_bar, scale_bar, 0);
-
-        // Draw scale bar with scale
-        int fontFace = cv::FONT_HERSHEY_SIMPLEX;
-        double fontScale = 0.7;
-        int thickness = 2;
-        cv::Point textPosMin(1, scale_height - 15);
-        cv::Point textPosMax(1, 20);
-        int textPosStep = scale_height / 5;
-        cv::Scalar colour = cv::Scalar(0, 0, 0);
-
-        std::ostringstream minStream, maxStream;
-        minStream << std::fixed << std::setprecision(2) << min_val;
-        maxStream << std::fixed << std::setprecision(2) << max_val;
-        std::string minText = minStream.str();
-        std::string maxText = maxStream.str();
-
-        cv::putText(scale_bar, minText, textPosMin, fontFace, fontScale, colour, thickness);
-        cv::putText(scale_bar, maxText, textPosMax, fontFace, fontScale, colour, thickness);
-
-        for (int i = 1; i < 6; ++i) { // Draw 6 scale labels (including min and max)
-            double scale_val = min_val + (i / 5.0) * (max_val - min_val);
-            std::ostringstream scaleStream;
-            scaleStream << std::fixed << std::setprecision(2) << scale_val;
-            std::string scaleText = scaleStream.str();
-
-            cv::Point textPos(1, scale_height - i * textPosStep - 10);
-
-            cv::putText(scale_bar, scaleText, textPos, fontFace, fontScale, colour, thickness);
-        }
-
-        cv::Mat combined_image;
-        cv::hconcat(depth_heatmap, scale_bar, combined_image);
-
-        cv::imshow("Depth Heatmap with Scale", combined_image);
+        // Example usage
+        createDepthScaleBar(depth_map, min_val, max_val);
 
         char key = cv::waitKey(1);
         if (key == 'q' || key == 27) {  // 'q' or Esc key
@@ -339,6 +344,7 @@ int main() {
         }
     }
 
+    cv::waitKey(0);
     capture.release();  // Release the webcam
     cv::destroyAllWindows();  // Close any OpenCV windows
 
