@@ -2,6 +2,11 @@
 #include <iostream>
 #include <vector>
 #include <opencv2/viz.hpp>
+#include <signal.h>
+#include <chrono>
+#include <iomanip>
+#include <sstream>
+#include <string>
 
 class ParallelProcess : public cv::ParallelLoopBody
 {
@@ -129,7 +134,7 @@ cv::Mat ProcessImage(const cv::Mat& lambda, double t1, double L, double e, cv::M
     return slope_detected;
 }
 
-void createDepthScaleBar(cv::Mat& depth_map, double actual_min_val, double actual_max_val) {
+cv::Mat createDepthScaleBar(cv::Mat& depth_map, double actual_min_val, double actual_max_val) {
     double fixed_min_val = -20.0; // Fixed minimum value for scale
     double fixed_max_val = 20.0;  // Fixed maximum value for scale
 
@@ -202,21 +207,37 @@ void createDepthScaleBar(cv::Mat& depth_map, double actual_min_val, double actua
 
     // Combine heatmap and scale bar
     cv::Mat combined_image;
+    cv::namedWindow("Depth Heatmap with Scale Bar", cv::WINDOW_AUTOSIZE);
     cv::hconcat(depth_heatmap, scale_bar, combined_image);
 
     // Display the combined image
-    cv::imshow("Depth Heatmap with Scale Bar", combined_image);
+    // cv::imshow("Depth Heatmap with Scale Bar", combined_image);
+    // return the final image
+    return combined_image;
 }
 
-int main() {
+volatile bool runLoop = true;
+
+void signal_callback_handler(int signum) {
+    runLoop = false;
+}
+
+int main() {  
     //First part
-    cv::Mat input_image = cv::imread("../dataset/Images_3/image-0001.png");
+    cv::VideoCapture capture(0);
+    if (!capture.isOpened()) {
+        std::cerr << "Error: Could not open webcam." << std::endl;
+        return 1;
+    }
+    // cv::Mat input_image = cv::imread("../dataset/Images_3/image-0001.png");
+    cv::Mat input_image;
+    capture >> input_image;
 
     // Split the image into its RGB channels
     std::vector<cv::Mat> channels(3);
     cv::split(input_image, channels);
-    cv::Mat& R = channels[2]; // Remember OpenCV is BGR
-    cv::Mat& B = channels[0];
+    cv::Mat& R = channels[0]; // Remember OpenCV is BGR
+    cv::Mat& B = channels[2];
 
     // Set I_rn and I_bn to 1 where R and B are zero, respectively
     cv::Mat I_rn = R.clone();
@@ -234,22 +255,33 @@ int main() {
     input_image_2.convertTo(input_image_2, CV_64FC3);*/
 
     cv::setNumThreads(4);
-    //cv::VideoCapture capture(0);
-    cv::VideoCapture capture("../dataset/Images_3/image-0400.png");
-    if (!capture.isOpened()) {
-        std::cerr << "Error: Could not open webcam." << std::endl;
-        return 1;
-    }
+    // cv::VideoCapture capture("../dataset/Images_3/image-0400.png");
+
+    // Define the codec and create VideoWriter object.The output is stored in 'outcpp.avi' file.
+    // int codec =  cv::VideoWriter::fourcc('Y', 'U', 'Y', 'V');  
+    // Get the current time
+    auto now = std::chrono::system_clock::now();
+    // Convert to local time
+    auto localTime = std::chrono::system_clock::to_time_t(now);
+    // Format the timestamp as a string
+    std::stringstream ss;
+    ss << std::put_time(std::localtime(&localTime), "%F_%H-%M-%S");
+    std::string date = ss.str();
+
+    int codec = cv::VideoWriter::fourcc('M','J','P','G'); //cv::VideoWriter::fourcc('Y', 'U', 'Y', 'V');  
+    cv::VideoWriter video("../output-"+date+".avi", codec, 2, cv::Size(1980,1282)); //Size is Capture Width + 60 & Capture Height + 2 
+
 
     cv::Mat frame;
-    while (true) {
+    // while (true) {
+    signal(SIGINT, signal_callback_handler);
+    while(runLoop){
         capture >> frame;
 
         if (frame.empty()) {
             std::cerr << "Error: Webcam frame is empty." << std::endl;
             break;
         }
-
         frame.convertTo(frame, CV_64FC3);
 
         //Define constants
@@ -266,7 +298,7 @@ int main() {
         std::vector<double> mean_lambda_line(num_rows, 0);  // Initialize vector for storing line-by-line means
 
         // Given camera intrinsic parameters:
-        double focal_length = 1.53903578e+03*2.5e-03;  // in mm
+        double focal_length = 1.538756463579103e+03;//1.53903578e+03*2.5e-03;  // in mm
         double sensor_width_mm = 22;  // in mm
         int image_width_pixels = input_image.cols;
 
@@ -280,8 +312,8 @@ int main() {
         // Split the second image into its RGB channels
         std::vector<cv::Mat> channels2(3);
         cv::split(frame, channels2);
-        cv::Mat& R2 = channels2[2];
-        cv::Mat& B2 = channels2[0];
+        cv::Mat& R2 = channels2[0];
+        cv::Mat& B2 = channels2[2];
 
         // Calculate normalized images using the second image channels
         cv::Mat I_n1, I_n2;
@@ -350,7 +382,13 @@ int main() {
         std::cout << "Minimum depth value: " << min_val << std::endl;
 
         // Example usage
-        createDepthScaleBar(depth_map, min_val, max_val);
+        cv::Mat finalFrame = createDepthScaleBar(depth_map, min_val, max_val);
+
+        cv::imshow("Depth Heatmap with Scale Bar", finalFrame);
+        // std::cout << "Final Frame size: " << finalFrame.size() <<"Type" << finalFrame.type() << std::endl;
+        // Write the frame into the file 'outcpp.avi'
+        video.write(finalFrame); // or video << frame;
+        // video << finalFrame;
 
         char key = cv::waitKey(1);
         if (key == 'q' || key == 27) {  // 'q' or Esc key
@@ -358,8 +396,9 @@ int main() {
         }
     }
 
-    cv::waitKey(0);
+    // cv::waitKey(0);
     capture.release();  // Release the webcam
+    video.release();    // Release the Video File
     cv::destroyAllWindows();  // Close any OpenCV windows
 
 
