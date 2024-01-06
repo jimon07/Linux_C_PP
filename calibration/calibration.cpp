@@ -5,7 +5,7 @@ int main(int argc, char** argv)
 {
 
     // string path = "/home/jim/Desktop/Linux_C_PP/IMG_2167.mp4";
-    VideoCapture cap(1, CAP_V4L2);
+    VideoCapture cap(0, CAP_V4L2);
 
     cap.set(cv::CAP_PROP_FOURCC, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'));    // More fps less resolution (at least for my setup)
     cap.set(cv::CAP_PROP_FRAME_WIDTH, 960);  // Set Frame Width
@@ -65,7 +65,7 @@ int main(int argc, char** argv)
             }
         
         imshow("Source image", image );
-        imshow("calcHist Demo", histImage );
+        imshow("Camera Histogram", histImage );
         waitKey(1);
     }
 
