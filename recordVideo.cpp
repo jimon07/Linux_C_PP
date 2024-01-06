@@ -38,7 +38,7 @@ int main() {
     // Define the codec and create VideoWriter object.The output is stored in file.
 
     int codec = cv::VideoWriter::fourcc('M','J','P','G'); //cv::VideoWriter::fourcc('Y', 'U', 'Y', 'V');  
-    cv::VideoWriter video("../no-process-output-"+date+".avi", codec, 2, cv::Size(num_rows,num_cols));
+    cv::VideoWriter video("../no-process-output-"+date+".avi", codec, 2, cv::Size(num_cols,num_rows));
 
     // while (true) {
     signal(SIGINT, signal_callback_handler);
@@ -49,7 +49,7 @@ int main() {
             std::cerr << "Error: Webcam frame is empty." << std::endl;
             break;
         }
-                
+        cv::imshow("Current Frame", frame);      
         video.write(frame); // or video << frame;
 
         char key = cv::waitKey(1);
